@@ -1,0 +1,8 @@
+/workspace/tests/CORIS.Tests/bin/Debug/net8.0/.msCoverageSourceRootsMapping_CORIS.Tests
+/workspace/tests/CORIS.Tests/bin/Debug/net8.0/CoverletSourceRootsMapping_CORIS.Tests
+/workspace/tests/CORIS.Tests/obj/Debug/net8.0/CORIS.Tests.csproj.AssemblyReference.cache
+/workspace/tests/CORIS.Tests/obj/Debug/net8.0/CORIS.Tests.GeneratedMSBuildEditorConfig.editorconfig
+/workspace/tests/CORIS.Tests/obj/Debug/net8.0/CORIS.Tests.AssemblyInfoInputs.cache
+/workspace/tests/CORIS.Tests/obj/Debug/net8.0/CORIS.Tests.AssemblyInfo.cs
+/workspace/tests/CORIS.Tests/obj/Debug/net8.0/CORIS.Tests.csproj.CoreCompileInputs.cache
+/workspace/tests/CORIS.Tests/obj/Debug/net8.0/CORIS.Tests.sourcelink.json

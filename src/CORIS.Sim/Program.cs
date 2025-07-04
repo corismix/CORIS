@@ -10,11 +10,53 @@ namespace CORIS.Sim
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("=== CORIS Rocketry Simulation Engine ===");
+            Console.WriteLine("High-Performance Vulkan Graphics | Jolt Physics | Cross-Platform");
+            Console.WriteLine();
+
+            // Parse command line arguments
             if (args.Contains("--vulkan"))
             {
-                VulkanDemo.Run();
+                bool enableValidation = args.Contains("--vk-validate");
+                bool enableMoltenVKTrace = args.Contains("--vk-trace");
+                VulkanDemo.Run(enableValidation, enableMoltenVKTrace);
                 return;
             }
+
+            if (args.Contains("--vulkan-test"))
+            {
+                Console.WriteLine("Running headless Vulkan test...");
+                VulkanTest.RunHeadlessTest();
+                return;
+            }
+
+            if (args.Contains("--help") || args.Contains("-h"))
+            {
+                PrintUsage();
+                return;
+            }
+
+            // Default physics simulation mode
+            RunPhysicsSimulation();
+        }
+
+        static void PrintUsage()
+        {
+            Console.WriteLine("CORIS Engine Usage:");
+            Console.WriteLine("  --vulkan          Run Vulkan graphics demo");
+            Console.WriteLine("  --vulkan-test     Run headless Vulkan test (for CI/testing)");
+            Console.WriteLine("  --vk-validate     Enable Vulkan validation layers (debug mode)");
+            Console.WriteLine("  --vk-trace        Enable MoltenVK call tracing (macOS debug)");
+            Console.WriteLine("  --help, -h        Show this help message");
+            Console.WriteLine();
+            Console.WriteLine("Examples:");
+            Console.WriteLine("  dotnet run --vulkan --vk-validate");
+            Console.WriteLine("  dotnet run --vulkan-test");
+            Console.WriteLine("  dotnet run  (default physics simulation)");
+        }
+
+        static void RunPhysicsSimulation()
+        {
             // Load parts from JSON
             string partsPath = Path.Combine("assets", "parts.json");
             var parts = ModLoader.LoadPartsFromJson(partsPath);

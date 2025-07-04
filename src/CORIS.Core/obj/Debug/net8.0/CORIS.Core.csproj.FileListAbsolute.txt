@@ -1,0 +1,13 @@
+/workspace/src/CORIS.Core/obj/Debug/net8.0/CORIS.Core.csproj.AssemblyReference.cache
+/workspace/src/CORIS.Core/obj/Debug/net8.0/CORIS.Core.GeneratedMSBuildEditorConfig.editorconfig
+/workspace/src/CORIS.Core/obj/Debug/net8.0/CORIS.Core.AssemblyInfoInputs.cache
+/workspace/src/CORIS.Core/obj/Debug/net8.0/CORIS.Core.AssemblyInfo.cs
+/workspace/src/CORIS.Core/obj/Debug/net8.0/CORIS.Core.csproj.CoreCompileInputs.cache
+/workspace/src/CORIS.Core/obj/Debug/net8.0/CORIS.Core.sourcelink.json
+/workspace/src/CORIS.Core/bin/Debug/net8.0/CORIS.Core.deps.json
+/workspace/src/CORIS.Core/bin/Debug/net8.0/CORIS.Core.dll
+/workspace/src/CORIS.Core/bin/Debug/net8.0/CORIS.Core.pdb
+/workspace/src/CORIS.Core/obj/Debug/net8.0/CORIS.Core.dll
+/workspace/src/CORIS.Core/obj/Debug/net8.0/refint/CORIS.Core.dll
+/workspace/src/CORIS.Core/obj/Debug/net8.0/CORIS.Core.pdb
+/workspace/src/CORIS.Core/obj/Debug/net8.0/ref/CORIS.Core.dll

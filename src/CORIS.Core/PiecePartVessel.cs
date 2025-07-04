@@ -48,15 +48,15 @@ namespace CORIS.Core
         }
     }
 
-    // Represents a 3D vector
-    public struct Vector3
+    // Represents a 3D vector (legacy - prefer System.Numerics.Vector3 for performance)
+    public struct Vector3Legacy
     {
         public double X, Y, Z;
-        public Vector3(double x, double y, double z) { X = x; Y = y; Z = z; }
-        public static Vector3 operator +(Vector3 a, Vector3 b) => new(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
-        public static Vector3 operator -(Vector3 a, Vector3 b) => new(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
-        public static Vector3 operator *(Vector3 a, double s) => new(a.X * s, a.Y * s, a.Z * s);
-        public static Vector3 operator /(Vector3 a, double s) => new(a.X / s, a.Y / s, a.Z / s);
+        public Vector3Legacy(double x, double y, double z) { X = x; Y = y; Z = z; }
+        public static Vector3Legacy operator +(Vector3Legacy a, Vector3Legacy b) => new(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
+        public static Vector3Legacy operator -(Vector3Legacy a, Vector3Legacy b) => new(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
+        public static Vector3Legacy operator *(Vector3Legacy a, double s) => new(a.X * s, a.Y * s, a.Z * s);
+        public static Vector3Legacy operator /(Vector3Legacy a, double s) => new(a.X / s, a.Y / s, a.Z / s);
         public double Magnitude() => Math.Sqrt(X * X + Y * Y + Z * Z);
         public override string ToString() => $"({X:F2}, {Y:F2}, {Z:F2})";
     }
@@ -77,12 +77,12 @@ namespace CORIS.Core
     // Represents the physical state of a vessel for simulation (now 3D)
     public class VesselState
     {
-        public Vector3 Position { get; set; } = new Vector3(0, 0, 0); // meters
-        public Vector3 Velocity { get; set; } = new Vector3(0, 0, 0); // m/s
-        public Vector3 Acceleration { get; set; } = new Vector3(0, 0, 0); // m/s^2
+        public Vector3Legacy Position { get; set; } = new Vector3Legacy(0, 0, 0); // meters
+        public Vector3Legacy Velocity { get; set; } = new Vector3Legacy(0, 0, 0); // m/s
+        public Vector3Legacy Acceleration { get; set; } = new Vector3Legacy(0, 0, 0); // m/s^2
         // Orientation (Euler angles in degrees)
-        public Vector3 Orientation { get; set; } = new Vector3(0, 90, 0); // (Yaw, Pitch, Roll)
-        public Vector3 AngularVelocity { get; set; } = new Vector3(0, 0, 0); // deg/s
+        public Vector3Legacy Orientation { get; set; } = new Vector3Legacy(0, 90, 0); // (Yaw, Pitch, Roll)
+        public Vector3Legacy AngularVelocity { get; set; } = new Vector3Legacy(0, 0, 0); // deg/s
         // Double-precision orbital state
         public Vector3d OrbitalPosition { get; set; } = new Vector3d(0, 0, 0); // meters
         public Vector3d OrbitalVelocity { get; set; } = new Vector3d(0, 0, 0); // m/s

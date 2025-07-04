@@ -1,0 +1,6 @@
+/workspace/src/CORIS.Sim/obj/Debug/net8.0/CORIS.Sim.csproj.AssemblyReference.cache
+/workspace/src/CORIS.Sim/obj/Debug/net8.0/CORIS.Sim.GeneratedMSBuildEditorConfig.editorconfig
+/workspace/src/CORIS.Sim/obj/Debug/net8.0/CORIS.Sim.AssemblyInfoInputs.cache
+/workspace/src/CORIS.Sim/obj/Debug/net8.0/CORIS.Sim.AssemblyInfo.cs
+/workspace/src/CORIS.Sim/obj/Debug/net8.0/CORIS.Sim.csproj.CoreCompileInputs.cache
+/workspace/src/CORIS.Sim/obj/Debug/net8.0/CORIS.Sim.sourcelink.json
