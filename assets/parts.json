@@ -1,62 +1,44 @@
 [
   {
-    "Id": "engine-1",
-    "Name": "Basic Engine",
-    "Pieces": [
+    "id": "engine-raptor",
+    "name": "Raptor Engine",
+    "pieces": [
       {
-        "Id": "engine-piece-1",
-        "Type": "engine",
-        "Mass": 1.5,
-        "Properties": { "thrust": 200.0, "gimbal": 0.0, "isp": 300.0, "minThrust": 50.0, "maxThrust": 200.0, "throttle": 1.0 }
+        "id": "raptor-nozzle",
+        "type": "engine",
+        "mass": 1600,
+        "properties": {
+          "thrust": 2200000,
+          "isp": 330,
+          "gimbal": 15
+        }
       }
     ]
   },
   {
-    "Id": "engine-2",
-    "Name": "Side Engine",
-    "Pieces": [
+    "id": "tank-main",
+    "name": "Main Fuel Tank",
+    "pieces": [
       {
-        "Id": "engine-piece-2",
-        "Type": "engine",
-        "Mass": 1.0,
-        "Properties": { "thrust": 100.0, "gimbal": 10.0, "isp": 280.0, "minThrust": 20.0, "maxThrust": 100.0, "throttle": 0.8 }
+        "id": "tank-structure",
+        "type": "tank",
+        "mass": 2000,
+        "properties": {
+          "fuel": 50000
+        }
       }
     ]
   },
   {
-    "Id": "engine-3",
-    "Name": "Vacuum Engine",
-    "Pieces": [
+    "id": "cockpit-crew",
+    "name": "Crew Compartment",
+    "pieces": [
       {
-        "Id": "engine-piece-3",
-        "Type": "engine",
-        "Mass": 1.2,
-        "Properties": { "thrust": 150.0, "gimbal": 0.0, "isp": 350.0, "minThrust": 30.0, "maxThrust": 150.0, "throttle": 1.0 }
-      }
-    ]
-  },
-  {
-    "Id": "tank-1",
-    "Name": "Fuel Tank",
-    "Pieces": [
-      {
-        "Id": "tank-piece-1",
-        "Type": "tank",
-        "Mass": 2.0,
-        "Properties": { "fuel": 100.0 }
-      }
-    ]
-  },
-  {
-    "Id": "capsule-1",
-    "Name": "Crew Capsule",
-    "Pieces": [
-      {
-        "Id": "capsule-piece-1",
-        "Type": "capsule",
-        "Mass": 1.0,
-        "Properties": { "crewCapacity": 1.0 }
+        "id": "cockpit-module",
+        "type": "cockpit",
+        "mass": 3000,
+        "properties": {}
       }
     ]
   }
-] 
+]
