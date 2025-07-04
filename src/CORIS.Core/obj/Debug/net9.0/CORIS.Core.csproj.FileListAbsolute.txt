@@ -10,3 +10,4 @@
 /Users/caseymould/Documents/repos/CORIS/src/CORIS.Core/obj/Debug/net9.0/refint/CORIS.Core.dll
 /Users/caseymould/Documents/repos/CORIS/src/CORIS.Core/obj/Debug/net9.0/CORIS.Core.pdb
 /Users/caseymould/Documents/repos/CORIS/src/CORIS.Core/obj/Debug/net9.0/ref/CORIS.Core.dll
+/Users/caseymould/Documents/repos/CORIS/src/CORIS.Core/obj/Debug/net9.0/CORIS.Core.sourcelink.json

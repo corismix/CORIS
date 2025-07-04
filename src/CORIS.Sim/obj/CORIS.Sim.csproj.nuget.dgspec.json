@@ -117,6 +117,18 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "dependencies": {
+            "Silk.NET.MoltenVK.Native": {
+              "target": "Package",
+              "version": "[2.22.0, )"
+            },
+            "Silk.NET.Vulkan": {
+              "target": "Package",
+              "version": "[2.22.0, )"
+            },
+            "Silk.NET.Vulkan.Extensions.KHR": {
+              "target": "Package",
+              "version": "[2.22.0, )"
+            },
             "Silk.NET.Windowing": {
               "target": "Package",
               "version": "[2.22.0, )"

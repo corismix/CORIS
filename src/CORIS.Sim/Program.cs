@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using CORIS.Core;
 using Silk.NET.Windowing;
 
@@ -10,11 +11,96 @@ namespace CORIS.Sim
     {
         static void Main(string[] args)
         {
-            if (args.Contains("--vulkan"))
+            // Check for help flag
+            if (args.Contains("--help") || args.Contains("-h"))
             {
-                VulkanDemo.Run();
+                PrintHelp();
                 return;
             }
+            
+            // Check for Vulkan test flag
+            if (args.Contains("--vulkan-test"))
+            {
+                Console.WriteLine("Running Vulkan test without window creation");
+                VulkanTest.Run();
+                return;
+            }
+            
+            // Check for Vulkan demo flag
+            if (args.Contains("--vulkan") || args.Contains("--vk") || args.Contains("--metal"))
+            {
+                bool isMacOS = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+                
+                Console.WriteLine("Starting CORIS Vulkan Demo");
+                Console.WriteLine("=========================");
+                
+                // Detect platform and inform about MoltenVK on macOS
+                if (isMacOS)
+                {
+                    Console.WriteLine("macOS detected: Using MoltenVK to translate Vulkan to Metal");
+                    Console.WriteLine("MoltenVK is loaded automatically via Silk.NET.MoltenVK.Native");
+                    Console.WriteLine("MoltenVK translates Vulkan API calls to Metal under the hood");
+                    Console.WriteLine("This allows the same Vulkan code to run on macOS without changes");
+                    
+                    if (args.Contains("--metal"))
+                    {
+                        Console.WriteLine("Note: --metal flag detected - this is the same as --vulkan on macOS");
+                    }
+                }
+                else if (args.Contains("--metal"))
+                {
+                    Console.WriteLine("Warning: --metal flag is only relevant on macOS");
+                    Console.WriteLine("On this platform, native Vulkan is used directly");
+                }
+                
+                // Parse extra Vulkan dev flags
+                bool enableVkTrace = args.Contains("--vk-trace");
+                bool enableVkValidation = args.Contains("--vk-validate");
+
+                if (enableVkTrace)
+                {
+                    Environment.SetEnvironmentVariable("MVK_CONFIG_TRACE_VULKAN_CALLS", "1");
+                }
+                if (enableVkValidation)
+                {
+                    Environment.SetEnvironmentVariable("VK_LAYER_PATH", string.Empty); // let loader locate default validation layers
+                    Environment.SetEnvironmentVariable("VK_INSTANCE_LAYERS", "VK_LAYER_KHRONOS_validation");
+                }
+                
+                try
+                {
+                    VulkanDemo.Run();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error: {ex.Message}");
+                    Console.WriteLine(ex.StackTrace);
+                }
+                return;
+            }
+            
+            // Regular simulation mode
+            RunSimulation();
+        }
+        
+        static void PrintHelp()
+        {
+            Console.WriteLine("CORIS Rocketry Simulation Engine");
+            Console.WriteLine("===============================");
+            Console.WriteLine("Command line options:");
+            Console.WriteLine("  --help, -h        : Show this help message");
+            Console.WriteLine("  --vulkan, --vk    : Run the Vulkan rendering demo");
+            Console.WriteLine("  --vulkan-test     : Run a basic Vulkan test without window creation");
+            Console.WriteLine("  --metal           : Run with Metal rendering on macOS (same as --vulkan)");
+            Console.WriteLine("  --vk-trace        : Enable MoltenVK call tracing (macOS only)");
+            Console.WriteLine("  --vk-validate     : Enable Vulkan validation layers if available");
+            Console.WriteLine();
+            Console.WriteLine("On macOS, the Vulkan API calls are automatically translated to Metal");
+            Console.WriteLine("using MoltenVK. This is transparent to the application code.");
+        }
+        
+        static void RunSimulation()
+        {
             // Load parts from JSON
             string partsPath = Path.Combine("assets", "parts.json");
             var parts = ModLoader.LoadPartsFromJson(partsPath);

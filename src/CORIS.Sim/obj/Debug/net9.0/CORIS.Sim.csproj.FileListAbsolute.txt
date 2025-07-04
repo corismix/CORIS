@@ -43,3 +43,12 @@
 /Users/caseymould/Documents/repos/CORIS/src/CORIS.Sim/bin/Debug/net9.0/runtimes/win-arm64/native/glfw3.dll
 /Users/caseymould/Documents/repos/CORIS/src/CORIS.Sim/bin/Debug/net9.0/runtimes/win-x64/native/glfw3.dll
 /Users/caseymould/Documents/repos/CORIS/src/CORIS.Sim/bin/Debug/net9.0/runtimes/win-x86/native/glfw3.dll
+/Users/caseymould/Documents/repos/CORIS/src/CORIS.Sim/obj/Debug/net9.0/CORIS.Sim.sourcelink.json
+/Users/caseymould/Documents/repos/CORIS/src/CORIS.Sim/bin/Debug/net9.0/Silk.NET.Vulkan.Extensions.KHR.dll
+/Users/caseymould/Documents/repos/CORIS/src/CORIS.Sim/bin/Debug/net9.0/runtimes/ios/native/libMoltenVK.a
+/Users/caseymould/Documents/repos/CORIS/src/CORIS.Sim/bin/Debug/net9.0/runtimes/iossimulator/native/libMoltenVK.a
+/Users/caseymould/Documents/repos/CORIS/src/CORIS.Sim/bin/Debug/net9.0/runtimes/maccatalyst/native/libMoltenVK.a
+/Users/caseymould/Documents/repos/CORIS/src/CORIS.Sim/bin/Debug/net9.0/runtimes/osx/native/MoltenVK_icd.json
+/Users/caseymould/Documents/repos/CORIS/src/CORIS.Sim/bin/Debug/net9.0/runtimes/osx/native/libMoltenVK.dylib
+/Users/caseymould/Documents/repos/CORIS/src/CORIS.Sim/bin/Debug/net9.0/runtimes/tvos/native/libMoltenVK.a
+/Users/caseymould/Documents/repos/CORIS/src/CORIS.Sim/bin/Debug/net9.0/runtimes/tvossimulator/native/libMoltenVK.a

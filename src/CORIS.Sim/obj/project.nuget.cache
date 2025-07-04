@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "5+Mtrb2nqVM=",
+  "dgSpecHash": "Zn8LLtDCGkg=",
   "success": true,
   "projectFilePath": "/Users/caseymould/Documents/repos/CORIS/src/CORIS.Sim/CORIS.Sim.csproj",
   "expectedPackageFiles": [
@@ -11,7 +11,9 @@
     "/Users/caseymould/.nuget/packages/silk.net.core/2.22.0/silk.net.core.2.22.0.nupkg.sha512",
     "/Users/caseymould/.nuget/packages/silk.net.glfw/2.22.0/silk.net.glfw.2.22.0.nupkg.sha512",
     "/Users/caseymould/.nuget/packages/silk.net.maths/2.22.0/silk.net.maths.2.22.0.nupkg.sha512",
+    "/Users/caseymould/.nuget/packages/silk.net.moltenvk.native/2.22.0/silk.net.moltenvk.native.2.22.0.nupkg.sha512",
     "/Users/caseymould/.nuget/packages/silk.net.vulkan/2.22.0/silk.net.vulkan.2.22.0.nupkg.sha512",
+    "/Users/caseymould/.nuget/packages/silk.net.vulkan.extensions.khr/2.22.0/silk.net.vulkan.extensions.khr.2.22.0.nupkg.sha512",
     "/Users/caseymould/.nuget/packages/silk.net.windowing/2.22.0/silk.net.windowing.2.22.0.nupkg.sha512",
     "/Users/caseymould/.nuget/packages/silk.net.windowing.common/2.22.0/silk.net.windowing.common.2.22.0.nupkg.sha512",
     "/Users/caseymould/.nuget/packages/silk.net.windowing.glfw/2.22.0/silk.net.windowing.glfw.2.22.0.nupkg.sha512",

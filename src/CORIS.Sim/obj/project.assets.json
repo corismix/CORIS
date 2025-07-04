@@ -146,6 +146,48 @@
           }
         }
       },
+      "Silk.NET.MoltenVK.Native/2.22.0": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/_._": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/_._": {}
+        },
+        "build": {
+          "buildTransitive/netstandard2.0/Silk.NET.MoltenVK.Native.targets": {}
+        },
+        "runtimeTargets": {
+          "runtimes/ios/native/libMoltenVK.a": {
+            "assetType": "native",
+            "rid": "ios"
+          },
+          "runtimes/iossimulator/native/libMoltenVK.a": {
+            "assetType": "native",
+            "rid": "iossimulator"
+          },
+          "runtimes/maccatalyst/native/libMoltenVK.a": {
+            "assetType": "native",
+            "rid": "maccatalyst"
+          },
+          "runtimes/osx/native/MoltenVK_icd.json": {
+            "assetType": "native",
+            "rid": "osx"
+          },
+          "runtimes/osx/native/libMoltenVK.dylib": {
+            "assetType": "native",
+            "rid": "osx"
+          },
+          "runtimes/tvos/native/libMoltenVK.a": {
+            "assetType": "native",
+            "rid": "tvos"
+          },
+          "runtimes/tvossimulator/native/libMoltenVK.a": {
+            "assetType": "native",
+            "rid": "tvossimulator"
+          }
+        }
+      },
       "Silk.NET.Vulkan/2.22.0": {
         "type": "package",
         "dependencies": {
@@ -158,6 +200,23 @@
         },
         "runtime": {
           "lib/net5.0/Silk.NET.Vulkan.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "Silk.NET.Vulkan.Extensions.KHR/2.22.0": {
+        "type": "package",
+        "dependencies": {
+          "Silk.NET.Core": "2.22.0",
+          "Silk.NET.Vulkan": "2.22.0"
+        },
+        "compile": {
+          "lib/net5.0/Silk.NET.Vulkan.Extensions.KHR.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net5.0/Silk.NET.Vulkan.Extensions.KHR.dll": {
             "related": ".xml"
           }
         }
@@ -550,6 +609,30 @@
         "silkdotnet_v3.png"
       ]
     },
+    "Silk.NET.MoltenVK.Native/2.22.0": {
+      "sha512": "E74FhpqpXngAAbHHpP4eT03FK46aIE5Yxw39bMsOjOSHvq+Uoy2bd/Cl077D6qo5QdJAau0mwn2KeqXAlliYzA==",
+      "type": "package",
+      "path": "silk.net.moltenvk.native/2.22.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "build/netstandard2.0/Silk.NET.MoltenVK.Native.targets",
+        "buildTransitive/netstandard2.0/Silk.NET.MoltenVK.Native.targets",
+        "lib/net461/_._",
+        "lib/netstandard2.0/_._",
+        "runtimes/ios/native/libMoltenVK.a",
+        "runtimes/iossimulator/native/libMoltenVK.a",
+        "runtimes/maccatalyst/native/libMoltenVK.a",
+        "runtimes/osx/native/MoltenVK_icd.json",
+        "runtimes/osx/native/libMoltenVK.dylib",
+        "runtimes/tvos/native/libMoltenVK.a",
+        "runtimes/tvossimulator/native/libMoltenVK.a",
+        "silk.net.moltenvk.native.2.22.0.nupkg.sha512",
+        "silk.net.moltenvk.native.nuspec",
+        "silkdotnet_v3.png"
+      ]
+    },
     "Silk.NET.Vulkan/2.22.0": {
       "sha512": "VBX7A5oosMQL9W/9dDzX+Dn4fr/ZaCwKv7X+nnJQhNbUAZ0tly6As/wA29oA7fM6N5PxROWKwnezttSZW8dGgQ==",
       "type": "package",
@@ -576,6 +659,27 @@
         "lib/netstandard2.1/Silk.NET.Vulkan.xml",
         "silk.net.vulkan.2.22.0.nupkg.sha512",
         "silk.net.vulkan.nuspec",
+        "silkdotnet_v3.png"
+      ]
+    },
+    "Silk.NET.Vulkan.Extensions.KHR/2.22.0": {
+      "sha512": "tyJCjj4ojQmwacvIjkpMMc85zKGy+9htJQqom6QNG1Zg8ljTuqoMomoUlPtP9IJyRS3moSwy3KpdGrbHxrNeLA==",
+      "type": "package",
+      "path": "silk.net.vulkan.extensions.khr/2.22.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "lib/net5.0/Silk.NET.Vulkan.Extensions.KHR.dll",
+        "lib/net5.0/Silk.NET.Vulkan.Extensions.KHR.xml",
+        "lib/netcoreapp3.1/Silk.NET.Vulkan.Extensions.KHR.dll",
+        "lib/netcoreapp3.1/Silk.NET.Vulkan.Extensions.KHR.xml",
+        "lib/netstandard2.0/Silk.NET.Vulkan.Extensions.KHR.dll",
+        "lib/netstandard2.0/Silk.NET.Vulkan.Extensions.KHR.xml",
+        "lib/netstandard2.1/Silk.NET.Vulkan.Extensions.KHR.dll",
+        "lib/netstandard2.1/Silk.NET.Vulkan.Extensions.KHR.xml",
+        "silk.net.vulkan.extensions.khr.2.22.0.nupkg.sha512",
+        "silk.net.vulkan.extensions.khr.nuspec",
         "silkdotnet_v3.png"
       ]
     },
@@ -866,6 +970,9 @@
   "projectFileDependencyGroups": {
     "net9.0": [
       "CORIS.Core >= 1.0.0",
+      "Silk.NET.MoltenVK.Native >= 2.22.0",
+      "Silk.NET.Vulkan >= 2.22.0",
+      "Silk.NET.Vulkan.Extensions.KHR >= 2.22.0",
       "Silk.NET.Windowing >= 2.22.0"
     ]
   },
@@ -916,6 +1023,18 @@
       "net9.0": {
         "targetAlias": "net9.0",
         "dependencies": {
+          "Silk.NET.MoltenVK.Native": {
+            "target": "Package",
+            "version": "[2.22.0, )"
+          },
+          "Silk.NET.Vulkan": {
+            "target": "Package",
+            "version": "[2.22.0, )"
+          },
+          "Silk.NET.Vulkan.Extensions.KHR": {
+            "target": "Package",
+            "version": "[2.22.0, )"
+          },
           "Silk.NET.Windowing": {
             "target": "Package",
             "version": "[2.22.0, )"

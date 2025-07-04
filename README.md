@@ -35,6 +35,29 @@ dotnet build
 dotnet run --project src/CORIS.Sim
 ```
 
+5. **Run the Vulkan demo (with MoltenVK on macOS):**
+   ```sh
+dotnet run --project src/CORIS.Sim -- --vulkan
+```
+
+## MoltenVK Integration for macOS
+
+CORIS uses MoltenVK to run Vulkan code on macOS, where Metal is the native graphics API. The integration works as follows:
+
+1. **Automatic MoltenVK Loading**: When running on macOS, the `Silk.NET.MoltenVK.Native` package automatically provides the MoltenVK library, which translates Vulkan API calls to Metal.
+
+2. **Platform-Specific Extensions**: The engine detects macOS at runtime and enables the required Vulkan extensions:
+   - `VK_KHR_portability_enumeration` - Required for MoltenVK instance creation
+   - `VK_KHR_portability_subset` - For device compatibility with Metal's capabilities
+
+3. **Surface Creation**: On macOS, a Metal-compatible surface is created through the `VK_EXT_metal_surface` extension, which GLFW/Silk.NET handles automatically.
+
+4. **No Code Changes Needed**: Game code uses the same Vulkan API across all platforms - the translation happens transparently.
+
+5. **Performance Notes**: While MoltenVK provides good performance, some Vulkan features may be emulated or limited on macOS. The engine handles these differences automatically where possible.
+
+To verify MoltenVK is working correctly, run the Vulkan demo with the `--vulkan` flag and look for "macOS detected: Using MoltenVK" in the console output.
+
 ## Notes
 - For Vulkan development, install the [LunarG Vulkan SDK](https://vulkan.lunarg.com/sdk/home).
 - If you encounter issues with native libraries (e.g., Jolt), ensure your environment variables (e.g., `DYLD_LIBRARY_PATH`) are set correctly.

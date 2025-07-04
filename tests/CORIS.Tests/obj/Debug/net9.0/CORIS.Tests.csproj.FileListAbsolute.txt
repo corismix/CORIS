@@ -114,3 +114,4 @@
 /Users/caseymould/Documents/repos/CORIS/tests/CORIS.Tests/obj/Debug/net9.0/CORIS.Tests.pdb
 /Users/caseymould/Documents/repos/CORIS/tests/CORIS.Tests/obj/Debug/net9.0/CORIS.Tests.genruntimeconfig.cache
 /Users/caseymould/Documents/repos/CORIS/tests/CORIS.Tests/obj/Debug/net9.0/ref/CORIS.Tests.dll
+/Users/caseymould/Documents/repos/CORIS/tests/CORIS.Tests/obj/Debug/net9.0/CORIS.Tests.sourcelink.json
