@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using CORIS.Core.Data;
 using CORIS.Core.Physics;
+using CORIS.Core.Simulation;
 
 namespace CORIS.Core.Simulation
 {
@@ -12,15 +13,17 @@ namespace CORIS.Core.Simulation
 
         private readonly SoABuffers _buffers;
         private readonly PhysicsWorld _physics;
+        private readonly ResourceFlowSystem _resources;
 
         // basic engine/drag config per piece
         private readonly Dictionary<int, EngineParams> _engines = new();
         private readonly Dictionary<int, DragParams> _dragShapes = new();
 
-        public ForceIntegrator(SoABuffers buffers, PhysicsWorld physics)
+        public ForceIntegrator(SoABuffers buffers, PhysicsWorld physics, ResourceFlowSystem resources)
         {
             _buffers = buffers;
             _physics = physics;
+            _resources = resources;
         }
 
         public void RegisterEngine(int pieceIndex, float thrustN, float isp, float dryMassKg)
@@ -50,6 +53,10 @@ namespace CORIS.Core.Simulation
                 Vector3 deltav = ps.Forward * dv;
                 ps.Velocity += deltav;
 
+                float massFlow = mDot * dt;
+                if (!_resources.Consume(idx, ResourceType.Fuel, massFlow))
+                    continue; // no fuel, skip thrust
+
                 // translate to force: F = m * dv/dt (approx current mass)
                 Vector3 thrustForce = ps.Forward * (ep.Thrust);
                 _physics.AddForce(idx, thrustForce);
@@ -65,7 +72,7 @@ namespace CORIS.Core.Simulation
                 ref var ps = ref _buffers.PieceStates[idx];
                 if (ps.Velocity.LengthSquared() < 1e-4f) continue;
 
-                float rho = SampleAtmosphereDensity(idx); // placeholder
+                float rho = AtmosphereModel.Density(GetAltitude(idx));
                 if (rho <= 0) continue;
 
                 Vector3 v = ps.Velocity;
@@ -77,11 +84,7 @@ namespace CORIS.Core.Simulation
             }
         }
 
-        // Very naive exponential atmosphere based on vessel altitude (not implemented)
-        private float SampleAtmosphereDensity(int pieceIndex)
-        {
-            return 0f; // TODO: integrate with altitude from VesselState
-        }
+        private float GetAltitude(int pieceIndex) => 0f; // TODO integrate vessel position
 
         private readonly record struct EngineParams(float Thrust, float Isp, float DryMass);
         private readonly record struct DragParams(float Area, float Cd);
