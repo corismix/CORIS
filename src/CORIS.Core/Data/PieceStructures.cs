@@ -40,5 +40,6 @@ namespace CORIS.Core.Data
         public int    PartCount;
         public Vector3d LocalOrigin;      // double-precision origin for close-physics context (m)
         public Quaternion Orientation;    // world orientation relative to universe root
+        public Vector3d Velocity;         // double precision velocity of vessel barycentre (m/s)
     }
 }
