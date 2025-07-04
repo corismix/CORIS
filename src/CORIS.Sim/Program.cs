@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using CORIS.Core;
 using Silk.NET.Windowing;
 
@@ -166,7 +167,7 @@ namespace CORIS.Sim
         static void Update(Vessel vessel, VesselState state, FuelState fuel)
         {
             // 3D physics: thrust in orientation, gravity in -Y
-            var thrustVec = new CORIS.Core.Vector3(0, 0, 0);
+            var thrustVec = new Vector3Legacy(0, 0, 0);
             double fuelUsed = 0.0;
             double g0 = 9.80665; // standard gravity
             double dryMass = 0;
@@ -183,7 +184,7 @@ namespace CORIS.Sim
                             gimbal = g;
                         double pitch = state.Orientation.Y + gimbal;
                         double pitchRad = pitch * Math.PI / 180.0;
-                        var dir = new CORIS.Core.Vector3(0, Math.Cos(pitchRad), Math.Sin(pitchRad));
+                        var dir = new Vector3Legacy(0, Math.Cos(pitchRad), Math.Sin(pitchRad));
                         thrustVec += dir * t;
                         totalThrust += t;
                         totalIsp += isp;
@@ -210,7 +211,7 @@ namespace CORIS.Sim
             double mass = dryMass + fuel.Fuel;
             double gravity = 9.81; // m/s^2, Earth gravity
             // Net force: sum of all engine thrusts, gravity in -Y
-            var netForce = thrustVec + new CORIS.Core.Vector3(0, -mass * gravity, 0);
+            var netForce = thrustVec + new Vector3Legacy(0, -mass * gravity, 0);
 
             // Drag (air resistance)
             double rho = 1.225; // air density at sea level (kg/m^3)
@@ -248,7 +249,7 @@ namespace CORIS.Sim
         static void UpdateSubstep(Vessel vessel, VesselState state, FuelState fuel, double dt)
         {
             // 3D physics: thrust in orientation, gravity in -Y
-            var thrustVec = new CORIS.Core.Vector3(0, 0, 0);
+            var thrustVec = new Vector3Legacy(0, 0, 0);
             double fuelUsed = 0.0;
             double g0 = 9.80665; // standard gravity
             double dryMass = 0;
@@ -265,7 +266,7 @@ namespace CORIS.Sim
                             gimbal = g;
                         double pitch = state.Orientation.Y + gimbal;
                         double pitchRad = pitch * Math.PI / 180.0;
-                        var dir = new CORIS.Core.Vector3(0, Math.Cos(pitchRad), Math.Sin(pitchRad));
+                        var dir = new Vector3Legacy(0, Math.Cos(pitchRad), Math.Sin(pitchRad));
                         thrustVec += dir * t;
                         totalThrust += t;
                         totalIsp += isp;
@@ -292,7 +293,7 @@ namespace CORIS.Sim
             double mass = dryMass + fuel.Fuel;
             double gravity = 9.81; // m/s^2, Earth gravity
             // Net force: sum of all engine thrusts, gravity in -Y
-            var netForce = thrustVec + new CORIS.Core.Vector3(0, -mass * gravity, 0);
+            var netForce = thrustVec + new Vector3Legacy(0, -mass * gravity, 0);
 
             // Drag (air resistance)
             double rho = 1.225; // air density at sea level (kg/m^3)
