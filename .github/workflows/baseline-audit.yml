@@ -28,7 +28,7 @@ jobs:
       run: dotnet test --configuration Release --no-build --verbosity normal
 
     - name: Upload Inventory Report
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: inventory-report
         path: docs/inventory-report.md
