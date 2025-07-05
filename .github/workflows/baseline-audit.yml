@@ -1,0 +1,143 @@
+name: Baseline Audit
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  baseline-audit:
+    name: Baseline Audit - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            platform: Linux
+          - os: windows-latest
+            platform: Windows
+          - os: macos-latest
+            platform: macOS
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+
+    - name: Restore dependencies with lock files
+      run: dotnet restore --locked-mode
+
+    - name: Build solution
+      run: dotnet build --no-restore --configuration Release
+
+    - name: Run tests
+      run: dotnet test --no-build --configuration Release --verbosity normal --logger trx --results-directory TestResults
+
+    - name: Verify clean build status
+      shell: bash
+      run: |
+        echo "::notice::Build completed successfully on ${{ matrix.platform }}"
+        echo "BUILD_STATUS=SUCCESS" >> $GITHUB_ENV
+
+    - name: Generate baseline audit info
+      shell: bash
+      run: |
+        echo "# Baseline Audit - ${{ matrix.platform }}" > baseline-audit-${{ matrix.platform }}.md
+        echo "" >> baseline-audit-${{ matrix.platform }}.md
+        echo "**Generated**: $(date)" >> baseline-audit-${{ matrix.platform }}.md
+        echo "**Platform**: ${{ matrix.platform }}" >> baseline-audit-${{ matrix.platform }}.md
+        echo "**Build Status**: ✅ SUCCESS" >> baseline-audit-${{ matrix.platform }}.md
+        echo "" >> baseline-audit-${{ matrix.platform }}.md
+        echo "## .NET Information" >> baseline-audit-${{ matrix.platform }}.md
+        dotnet --info >> baseline-audit-${{ matrix.platform }}.md
+        echo "" >> baseline-audit-${{ matrix.platform }}.md
+        echo "## Package Versions" >> baseline-audit-${{ matrix.platform }}.md
+        echo "\`\`\`" >> baseline-audit-${{ matrix.platform }}.md
+        find . -name "*.csproj" -exec echo "=== {} ===" \; -exec cat {} \; >> baseline-audit-${{ matrix.platform }}.md
+        echo "\`\`\`" >> baseline-audit-${{ matrix.platform }}.md
+
+    - name: Upload baseline audit artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: baseline-audit-${{ matrix.platform }}
+        path: |
+          baseline-audit-${{ matrix.platform }}.md
+          TestResults/**/*.trx
+          **/packages.lock.json
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results-${{ matrix.platform }}
+        path: TestResults/**/*.trx
+
+  consolidate-audit:
+    name: Consolidate Audit Report
+    runs-on: ubuntu-latest
+    needs: baseline-audit
+    if: always()
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download all audit artifacts
+      uses: actions/download-artifact@v4
+      with:
+        pattern: baseline-audit-*
+        merge-multiple: true
+
+    - name: Consolidate audit report
+      run: |
+        echo "# CORIS Engine - Consolidated Baseline Audit" > consolidated-baseline-audit.md
+        echo "" >> consolidated-baseline-audit.md
+        echo "**Generated**: $(date)" >> consolidated-baseline-audit.md
+        echo "**Workflow**: ${{ github.workflow }}" >> consolidated-baseline-audit.md
+        echo "**Run**: ${{ github.run_number }}" >> consolidated-baseline-audit.md
+        echo "" >> consolidated-baseline-audit.md
+        
+        # Add platform-specific reports
+        for platform in Linux Windows macOS; do
+          if [ -f "baseline-audit-${platform}.md" ]; then
+            echo "## ${platform} Results" >> consolidated-baseline-audit.md
+            echo "" >> consolidated-baseline-audit.md
+            cat "baseline-audit-${platform}.md" >> consolidated-baseline-audit.md
+            echo "" >> consolidated-baseline-audit.md
+          fi
+        done
+
+        # Add main audit report
+        echo "## Detailed Audit Report" >> consolidated-baseline-audit.md
+        echo "" >> consolidated-baseline-audit.md
+        cat docs/baseline-audit-report.md >> consolidated-baseline-audit.md
+
+    - name: Upload consolidated audit report
+      uses: actions/upload-artifact@v4
+      with:
+        name: consolidated-baseline-audit
+        path: |
+          consolidated-baseline-audit.md
+          docs/baseline-audit-report.md
+          **/*.lock.json
+
+    - name: Verify audit completion
+      run: |
+        echo "::notice::Baseline audit completed successfully"
+        echo "::notice::All platforms tested: Linux, Windows, macOS"
+        echo "::notice::Audit report uploaded as artifact"

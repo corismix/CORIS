@@ -5,6 +5,11 @@ namespace CORIS.Sim
 {
     public static class VulkanTest
     {
+        public static void Run()
+        {
+            RunHeadlessTest();
+        }
+        
         public static void RunHeadlessTest()
         {
             Console.WriteLine("=== CORIS Headless Vulkan Test ===");

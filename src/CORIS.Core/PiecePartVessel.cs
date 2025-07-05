@@ -1,10 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Numerics;
 using System.Text.Json;
 
 namespace CORIS.Core
 {
+    // Extension methods to add missing functionality to System.Numerics.Vector3
+    public static class Vector3Extensions
+    {
+        public static double Magnitude(this Vector3 vector)
+        {
+            return Math.Sqrt(vector.X * vector.X + vector.Y * vector.Y + vector.Z * vector.Z);
+        }
+    }
     // Represents the smallest functional unit (e.g., engine, tank section)
     public class Piece
     {
@@ -77,12 +86,12 @@ namespace CORIS.Core
     // Represents the physical state of a vessel for simulation (now 3D)
     public class VesselState
     {
-        public Vector3Legacy Position { get; set; } = new Vector3Legacy(0, 0, 0); // meters
-        public Vector3Legacy Velocity { get; set; } = new Vector3Legacy(0, 0, 0); // m/s
-        public Vector3Legacy Acceleration { get; set; } = new Vector3Legacy(0, 0, 0); // m/s^2
+        public Vector3 Position { get; set; } = new Vector3(0, 0, 0); // meters
+        public Vector3 Velocity { get; set; } = new Vector3(0, 0, 0); // m/s
+        public Vector3 Acceleration { get; set; } = new Vector3(0, 0, 0); // m/s^2
         // Orientation (Euler angles in degrees)
-        public Vector3Legacy Orientation { get; set; } = new Vector3Legacy(0, 90, 0); // (Yaw, Pitch, Roll)
-        public Vector3Legacy AngularVelocity { get; set; } = new Vector3Legacy(0, 0, 0); // deg/s
+        public Vector3 Orientation { get; set; } = new Vector3(0, 90, 0); // (Yaw, Pitch, Roll)
+        public Vector3 AngularVelocity { get; set; } = new Vector3(0, 0, 0); // deg/s
         // Double-precision orbital state
         public Vector3d OrbitalPosition { get; set; } = new Vector3d(0, 0, 0); // meters
         public Vector3d OrbitalVelocity { get; set; } = new Vector3d(0, 0, 0); // m/s

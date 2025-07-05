@@ -1,14 +1,14 @@
 {
   "version": 3,
   "targets": {
-    "net9.0": {
+    "net8.0": {
       "JoltPhysicsSharp/2.17.4": {
         "type": "package",
         "compile": {
-          "lib/net9.0/JoltPhysicsSharp.dll": {}
+          "lib/net8.0/JoltPhysicsSharp.dll": {}
         },
         "runtime": {
-          "lib/net9.0/JoltPhysicsSharp.dll": {}
+          "lib/net8.0/JoltPhysicsSharp.dll": {}
         },
         "runtimeTargets": {
           "runtimes/android-arm/native/libjoltc.so": {
@@ -382,10 +382,10 @@
       },
       "CORIS.Core/1.0.0": {
         "type": "project",
-        "framework": ".NETCoreApp,Version=v9.0",
+        "framework": ".NETCoreApp,Version=v8.0",
         "dependencies": {
           "JoltPhysicsSharp": "2.17.4",
-          "Silk.NET.Vulkan": "2.22.0"
+          "System.Numerics.Vectors": "4.5.0"
         },
         "compile": {
           "bin/placeholder/CORIS.Core.dll": {}
@@ -968,7 +968,7 @@
     }
   },
   "projectFileDependencyGroups": {
-    "net9.0": [
+    "net8.0": [
       "CORIS.Core >= 1.0.0",
       "Silk.NET.MoltenVK.Native >= 2.22.0",
       "Silk.NET.Vulkan >= 2.22.0",
@@ -977,32 +977,32 @@
     ]
   },
   "packageFolders": {
-    "/Users/caseymould/.nuget/packages/": {}
+    "/home/ubuntu/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/caseymould/Documents/repos/CORIS/src/CORIS.Sim/CORIS.Sim.csproj",
+      "projectUniqueName": "/workspace/src/CORIS.Sim/CORIS.Sim.csproj",
       "projectName": "CORIS.Sim",
-      "projectPath": "/Users/caseymould/Documents/repos/CORIS/src/CORIS.Sim/CORIS.Sim.csproj",
-      "packagesPath": "/Users/caseymould/.nuget/packages/",
-      "outputPath": "/Users/caseymould/Documents/repos/CORIS/src/CORIS.Sim/obj/",
+      "projectPath": "/workspace/src/CORIS.Sim/CORIS.Sim.csproj",
+      "packagesPath": "/home/ubuntu/.nuget/packages/",
+      "outputPath": "/workspace/src/CORIS.Sim/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/Users/caseymould/.nuget/NuGet/NuGet.Config"
+        "/home/ubuntu/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
-        "net9.0"
+        "net8.0"
       ],
       "sources": {
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
-        "net9.0": {
-          "targetAlias": "net9.0",
+        "net8.0": {
+          "targetAlias": "net8.0",
           "projectReferences": {
-            "/Users/caseymould/Documents/repos/CORIS/src/CORIS.Core/CORIS.Core.csproj": {
-              "projectPath": "/Users/caseymould/Documents/repos/CORIS/src/CORIS.Core/CORIS.Core.csproj"
+            "/workspace/src/CORIS.Core/CORIS.Core.csproj": {
+              "projectPath": "/workspace/src/CORIS.Core/CORIS.Core.csproj"
             }
           }
         }
@@ -1016,12 +1016,11 @@
         "enableAudit": "true",
         "auditLevel": "low",
         "auditMode": "direct"
-      },
-      "SdkAnalysisLevel": "9.0.300"
+      }
     },
     "frameworks": {
-      "net9.0": {
-        "targetAlias": "net9.0",
+      "net8.0": {
+        "targetAlias": "net8.0",
         "dependencies": {
           "Silk.NET.MoltenVK.Native": {
             "target": "Package",
@@ -1056,7 +1055,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.301/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.411/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
