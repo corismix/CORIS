@@ -74,8 +74,8 @@ public class PhysicsTests
             netForce += drag;
         }
         state.Acceleration = netForce / (float)mass;
-        state.Velocity += state.Acceleration * 1.0;
-        state.Position += state.Velocity * 1.0;
+        state.Velocity += state.Acceleration * 1.0f;
+        state.Position += state.Velocity * 1.0f;
         Assert.True(state.Velocity.Y > 0, "Vessel should accelerate upward with upward thrust");
     }
 } 

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CORIS.Sim")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d43eed68a6ee7a6c9ce2b6365741fe0614541bf0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a5aef93ef9d7b752b5484a687068753d309c85cd")]
 [assembly: System.Reflection.AssemblyProductAttribute("CORIS.Sim")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CORIS.Sim")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
