@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net9.0": {
+      "JoltPhysicsSharp": {
+        "type": "Direct",
+        "requested": "[2.17.4, )",
+        "resolved": "2.17.4",
+        "contentHash": "o6D+lK3WSlQf9iocrHBnIlB0dw+/6NgDBkWvDnt58IwwvXeI78yj9p+qp67VxNzeUNG8Itbw/Awha2W/stbHoQ=="
+      },
+      "System.Numerics.Vectors": {
+        "type": "Direct",
+        "requested": "[4.5.0, )",
+        "resolved": "4.5.0",
+        "contentHash": "QQTlPTl06J/iiDbJCiepZ4H//BVraReU4O4EoRw1U02H5TLUIT7xn3GnDp9AXPSlJUDyFs4uWjWafNX6WrAojQ=="
+      }
+    }
+  }
+}

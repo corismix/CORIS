@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using CORIS.Core;
 using Silk.NET.Windowing;
+using System.Numerics;
 
 namespace CORIS.Sim
 {
@@ -22,7 +23,7 @@ namespace CORIS.Sim
             if (args.Contains("--vulkan-test"))
             {
                 Console.WriteLine("Running Vulkan test without window creation");
-                VulkanTest.Run();
+                VulkanTest.RunHeadlessTest();
                 return;
             }
             
@@ -147,7 +148,7 @@ namespace CORIS.Sim
             // Collect altitude history for ASCII graph (now Y position)
             var altitudeHistory = new System.Collections.Generic.List<double>();
             double maxAltitude = vesselState.Position.Y;
-            double maxVelocity = vesselState.Velocity.Magnitude();
+            double maxVelocity = vesselState.Velocity.Length();
             string stopReason = "";
             int step = 0;
             bool staged = false;
@@ -162,7 +163,7 @@ namespace CORIS.Sim
                 altitudeHistory.Add(vesselState.Position.Y);
                 pitchHistory.Add(vesselState.Orientation.Y);
                 if (vesselState.Position.Y > maxAltitude) maxAltitude = vesselState.Position.Y;
-                if (vesselState.Velocity.Magnitude() > maxVelocity) maxVelocity = vesselState.Velocity.Magnitude();
+                if (vesselState.Velocity.Length() > maxVelocity) maxVelocity = vesselState.Velocity.Length();
                 step++;
                 if (step % 10 == 0 || fuelState.Fuel <= 0 || vesselState.Position.Y < 0)
                 {
@@ -210,7 +211,7 @@ namespace CORIS.Sim
         static void Update(Vessel vessel, VesselState state, FuelState fuel)
         {
             // 3D physics: thrust in orientation, gravity in -Y
-            var thrustVec = new CORIS.Core.Vector3(0, 0, 0);
+            var thrustVec = new Vector3(0, 0, 0);
             double fuelUsed = 0.0;
             double g0 = 9.80665; // standard gravity
             double dryMass = 0;
@@ -227,8 +228,8 @@ namespace CORIS.Sim
                             gimbal = g;
                         double pitch = state.Orientation.Y + gimbal;
                         double pitchRad = pitch * Math.PI / 180.0;
-                        var dir = new CORIS.Core.Vector3(0, Math.Cos(pitchRad), Math.Sin(pitchRad));
-                        thrustVec += dir * t;
+                        var dir = new Vector3(0, (float)Math.Cos(pitchRad), (float)Math.Sin(pitchRad));
+                        thrustVec += dir * (float)t;
                         totalThrust += t;
                         totalIsp += isp;
                         if (fuel.Fuel > 0)
@@ -254,25 +255,25 @@ namespace CORIS.Sim
             double mass = dryMass + fuel.Fuel;
             double gravity = 9.81; // m/s^2, Earth gravity
             // Net force: sum of all engine thrusts, gravity in -Y
-            var netForce = thrustVec + new CORIS.Core.Vector3(0, -mass * gravity, 0);
+            var netForce = thrustVec + new Vector3(0, (float)(-mass * gravity), 0);
 
             // Drag (air resistance)
             double rho = 1.225; // air density at sea level (kg/m^3)
             double Cd = 0.75;   // drag coefficient (typical for rockets)
             double A = 1.0;     // cross-sectional area (m^2)
             var v = state.Velocity;
-            double vMag = v.Magnitude();
+            double vMag = v.Length();
             if (vMag > 0)
             {
-                var dragDir = v * (-1.0 / vMag); // opposite to velocity
+                var dragDir = v * (float)(-1.0 / vMag); // opposite to velocity
                 double dragMag = 0.5 * rho * Cd * A * vMag * vMag;
-                var drag = dragDir * dragMag;
+                var drag = dragDir * (float)dragMag;
                 netForce += drag;
             }
 
-            state.Acceleration = netForce / mass;
-            state.Velocity += state.Acceleration * 1.0; // dt = 1s
-            state.Position += state.Velocity * 1.0; // dt = 1s
+            state.Acceleration = netForce / (float)mass;
+            state.Velocity += state.Acceleration * 1.0f; // dt = 1s
+            state.Position += state.Velocity * 1.0f; // dt = 1s
 
             // Tsiolkovsky: update fuel and mass
             fuel.Fuel -= fuelUsed;
@@ -283,16 +284,16 @@ namespace CORIS.Sim
             {
                 double angularAccel = 1.0; // deg/s^2, simple constant
                 var angVel = state.AngularVelocity;
-                angVel.Y += angularAccel * 1.0; // pitch axis
+                angVel.Y += (float)(angularAccel * 1.0); // pitch axis
                 state.AngularVelocity = angVel;
             }
-            state.Orientation += state.AngularVelocity * 1.0; // deg/s * dt
+            state.Orientation += state.AngularVelocity * 1.0f; // deg/s * dt
         }
 
         static void UpdateSubstep(Vessel vessel, VesselState state, FuelState fuel, double dt)
         {
             // 3D physics: thrust in orientation, gravity in -Y
-            var thrustVec = new CORIS.Core.Vector3(0, 0, 0);
+            var thrustVec = new Vector3(0, 0, 0);
             double fuelUsed = 0.0;
             double g0 = 9.80665; // standard gravity
             double dryMass = 0;
@@ -309,8 +310,8 @@ namespace CORIS.Sim
                             gimbal = g;
                         double pitch = state.Orientation.Y + gimbal;
                         double pitchRad = pitch * Math.PI / 180.0;
-                        var dir = new CORIS.Core.Vector3(0, Math.Cos(pitchRad), Math.Sin(pitchRad));
-                        thrustVec += dir * t;
+                        var dir = new Vector3(0, (float)Math.Cos(pitchRad), (float)Math.Sin(pitchRad));
+                        thrustVec += dir * (float)t;
                         totalThrust += t;
                         totalIsp += isp;
                         if (fuel.Fuel > 0)
@@ -336,25 +337,25 @@ namespace CORIS.Sim
             double mass = dryMass + fuel.Fuel;
             double gravity = 9.81; // m/s^2, Earth gravity
             // Net force: sum of all engine thrusts, gravity in -Y
-            var netForce = thrustVec + new CORIS.Core.Vector3(0, -mass * gravity, 0);
+            var netForce = thrustVec + new Vector3(0, (float)(-mass * gravity), 0);
 
             // Drag (air resistance)
             double rho = 1.225; // air density at sea level (kg/m^3)
             double Cd = 0.75;   // drag coefficient (typical for rockets)
             double A = 1.0;     // cross-sectional area (m^2)
             var v = state.Velocity;
-            double vMag = v.Magnitude();
+            double vMag = v.Length();
             if (vMag > 0)
             {
-                var dragDir = v * (-1.0 / vMag); // opposite to velocity
+                var dragDir = v * (float)(-1.0 / vMag); // opposite to velocity
                 double dragMag = 0.5 * rho * Cd * A * vMag * vMag;
-                var drag = dragDir * dragMag;
+                var drag = dragDir * (float)dragMag;
                 netForce += drag;
             }
 
-            state.Acceleration = netForce / mass;
-            state.Velocity += state.Acceleration * dt;
-            state.Position += state.Velocity * dt;
+            state.Acceleration = netForce / (float)mass;
+            state.Velocity += state.Acceleration * (float)dt;
+            state.Position += state.Velocity * (float)dt;
 
             // Tsiolkovsky: update fuel and mass
             fuel.Fuel -= fuelUsed;
@@ -365,10 +366,10 @@ namespace CORIS.Sim
             {
                 double angularAccel = 1.0; // deg/s^2, simple constant
                 var angVel = state.AngularVelocity;
-                angVel.Y += angularAccel * dt; // pitch axis
+                angVel.Y += (float)(angularAccel * dt); // pitch axis
                 state.AngularVelocity = angVel;
             }
-            state.Orientation += state.AngularVelocity * dt; // deg/s * dt
+            state.Orientation += state.AngularVelocity * (float)dt; // deg/s * dt
         }
 
         static void Render(Vessel vessel, VesselState state, FuelState fuel, int step)

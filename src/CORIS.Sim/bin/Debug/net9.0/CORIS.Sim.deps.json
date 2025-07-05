@@ -283,7 +283,7 @@
       "CORIS.Core/1.0.0": {
         "dependencies": {
           "JoltPhysicsSharp": "2.17.4",
-          "Silk.NET.Vulkan": "2.22.0"
+          "System.Numerics.Vectors": "4.5.0"
         },
         "runtime": {
           "CORIS.Core.dll": {

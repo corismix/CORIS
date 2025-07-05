@@ -77,12 +77,12 @@ namespace CORIS.Core
     // Represents the physical state of a vessel for simulation (now 3D)
     public class VesselState
     {
-        public Vector3Legacy Position { get; set; } = new Vector3Legacy(0, 0, 0); // meters
-        public Vector3Legacy Velocity { get; set; } = new Vector3Legacy(0, 0, 0); // m/s
-        public Vector3Legacy Acceleration { get; set; } = new Vector3Legacy(0, 0, 0); // m/s^2
+        public System.Numerics.Vector3 Position { get; set; } = new System.Numerics.Vector3(0f, 0f, 0f); // meters
+        public System.Numerics.Vector3 Velocity { get; set; } = new System.Numerics.Vector3(0f, 0f, 0f); // m/s
+        public System.Numerics.Vector3 Acceleration { get; set; } = new System.Numerics.Vector3(0f, 0f, 0f); // m/s^2
         // Orientation (Euler angles in degrees)
-        public Vector3Legacy Orientation { get; set; } = new Vector3Legacy(0, 90, 0); // (Yaw, Pitch, Roll)
-        public Vector3Legacy AngularVelocity { get; set; } = new Vector3Legacy(0, 0, 0); // deg/s
+        public System.Numerics.Vector3 Orientation { get; set; } = new System.Numerics.Vector3(0f, 90f, 0f); // (Yaw, Pitch, Roll)
+        public System.Numerics.Vector3 AngularVelocity { get; set; } = new System.Numerics.Vector3(0f, 0f, 0f); // deg/s
         // Double-precision orbital state
         public Vector3d OrbitalPosition { get; set; } = new Vector3d(0, 0, 0); // meters
         public Vector3d OrbitalVelocity { get; set; } = new Vector3d(0, 0, 0); // m/s

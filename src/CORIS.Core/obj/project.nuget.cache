@@ -1,13 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "biTHiij2p+Y=",
+  "dgSpecHash": "RlMnqq+jgKk=",
   "success": true,
   "projectFilePath": "/Users/caseymould/Documents/repos/CORIS/src/CORIS.Core/CORIS.Core.csproj",
   "expectedPackageFiles": [
     "/Users/caseymould/.nuget/packages/joltphysicssharp/2.17.4/joltphysicssharp.2.17.4.nupkg.sha512",
-    "/Users/caseymould/.nuget/packages/system.numerics.vectors/4.5.0/system.numerics.vectors.4.5.0.nupkg.sha512",
-    "/Users/caseymould/.nuget/packages/microsoft.netcore.app.ref/8.0.17/microsoft.netcore.app.ref.8.0.17.nupkg.sha512",
-    "/Users/caseymould/.nuget/packages/microsoft.aspnetcore.app.ref/8.0.17/microsoft.aspnetcore.app.ref.8.0.17.nupkg.sha512"
+    "/Users/caseymould/.nuget/packages/system.numerics.vectors/4.5.0/system.numerics.vectors.4.5.0.nupkg.sha512"
   ],
   "logs": []
 }

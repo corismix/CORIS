@@ -1,0 +1,34 @@
+name: Baseline Audit
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup .NET 9.0
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Restore dependencies and generate lock files
+      run: dotnet restore --use-lock-file
+
+    - name: Build solution
+      run: dotnet build --configuration Release --no-restore
+
+    - name: Run tests
+      run: dotnet test --configuration Release --no-build --verbosity normal
+
+    - name: Upload Inventory Report
+      uses: actions/upload-artifact@v3
+      with:
+        name: inventory-report
+        path: docs/inventory-report.md

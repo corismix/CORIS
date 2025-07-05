@@ -382,7 +382,7 @@
       },
       "CORIS.Core/1.0.0": {
         "type": "project",
-        "framework": ".NETCoreApp,Version=v8.0",
+        "framework": ".NETCoreApp,Version=v9.0",
         "dependencies": {
           "JoltPhysicsSharp": "2.17.4",
           "System.Numerics.Vectors": "4.5.0"
@@ -1011,6 +1011,9 @@
         "warnAsError": [
           "NU1605"
         ]
+      },
+      "restoreLockProperties": {
+        "restorePackagesWithLockFile": "true"
       },
       "restoreAuditProperties": {
         "enableAudit": "true",
