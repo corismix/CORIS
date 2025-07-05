@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/workspace/src/CORIS.Core/CORIS.Core.csproj": {}
+    "/Users/caseymould/Documents/repos/CORIS/src/CORIS.Core/CORIS.Core.csproj": {}
   },
   "projects": {
-    "/workspace/src/CORIS.Core/CORIS.Core.csproj": {
+    "/Users/caseymould/Documents/repos/CORIS/src/CORIS.Core/CORIS.Core.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/workspace/src/CORIS.Core/CORIS.Core.csproj",
+        "projectUniqueName": "/Users/caseymould/Documents/repos/CORIS/src/CORIS.Core/CORIS.Core.csproj",
         "projectName": "CORIS.Core",
-        "projectPath": "/workspace/src/CORIS.Core/CORIS.Core.csproj",
-        "packagesPath": "/home/ubuntu/.nuget/packages/",
-        "outputPath": "/workspace/src/CORIS.Core/obj/",
+        "projectPath": "/Users/caseymould/Documents/repos/CORIS/src/CORIS.Core/CORIS.Core.csproj",
+        "packagesPath": "/Users/caseymould/.nuget/packages/",
+        "outputPath": "/Users/caseymould/Documents/repos/CORIS/src/CORIS.Core/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/ubuntu/.nuget/NuGet/NuGet.Config"
+          "/Users/caseymould/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -37,7 +37,8 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        }
+        },
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net8.0": {
@@ -63,12 +64,22 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[8.0.17, 8.0.17]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[8.0.17, 8.0.17]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.411/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.301/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

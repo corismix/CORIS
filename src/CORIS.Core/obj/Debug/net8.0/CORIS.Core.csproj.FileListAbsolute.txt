@@ -11,3 +11,16 @@
 /workspace/src/CORIS.Core/obj/Debug/net8.0/refint/CORIS.Core.dll
 /workspace/src/CORIS.Core/obj/Debug/net8.0/CORIS.Core.pdb
 /workspace/src/CORIS.Core/obj/Debug/net8.0/ref/CORIS.Core.dll
+/Users/caseymould/Documents/repos/CORIS/src/CORIS.Core/bin/Debug/net8.0/CORIS.Core.deps.json
+/Users/caseymould/Documents/repos/CORIS/src/CORIS.Core/bin/Debug/net8.0/CORIS.Core.dll
+/Users/caseymould/Documents/repos/CORIS/src/CORIS.Core/bin/Debug/net8.0/CORIS.Core.pdb
+/Users/caseymould/Documents/repos/CORIS/src/CORIS.Core/obj/Debug/net8.0/CORIS.Core.csproj.AssemblyReference.cache
+/Users/caseymould/Documents/repos/CORIS/src/CORIS.Core/obj/Debug/net8.0/CORIS.Core.GeneratedMSBuildEditorConfig.editorconfig
+/Users/caseymould/Documents/repos/CORIS/src/CORIS.Core/obj/Debug/net8.0/CORIS.Core.AssemblyInfoInputs.cache
+/Users/caseymould/Documents/repos/CORIS/src/CORIS.Core/obj/Debug/net8.0/CORIS.Core.AssemblyInfo.cs
+/Users/caseymould/Documents/repos/CORIS/src/CORIS.Core/obj/Debug/net8.0/CORIS.Core.csproj.CoreCompileInputs.cache
+/Users/caseymould/Documents/repos/CORIS/src/CORIS.Core/obj/Debug/net8.0/CORIS.Core.sourcelink.json
+/Users/caseymould/Documents/repos/CORIS/src/CORIS.Core/obj/Debug/net8.0/CORIS.Core.dll
+/Users/caseymould/Documents/repos/CORIS/src/CORIS.Core/obj/Debug/net8.0/refint/CORIS.Core.dll
+/Users/caseymould/Documents/repos/CORIS/src/CORIS.Core/obj/Debug/net8.0/CORIS.Core.pdb
+/Users/caseymould/Documents/repos/CORIS/src/CORIS.Core/obj/Debug/net8.0/ref/CORIS.Core.dll
