@@ -1,0 +1,26 @@
+name: baseline-audit
+
+on:
+  pull_request:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build-test:
+    name: Build & Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Restore with lock files
+        run: dotnet restore --use-lock-file
+      - name: Build
+        run: dotnet build --configuration Release --no-restore /warnaserror
+      - name: Test
+        run: dotnet test --configuration Release --no-build --verbosity normal

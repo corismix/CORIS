@@ -53,27 +53,27 @@ public class PhysicsTests
             }
         };
         var state = new VesselState();
-        state.Orientation = new Vector3Legacy(0, 0, 0); // Set pitch to 0 (upward)
+        state.Orientation = new Vector3(0, 0, 0); // Set pitch to 0 (upward)
         var fuel = new FuelState { Fuel = 10.0 };
         // Use the same update logic as the main sim (copy-paste for now)
         double thrust = 1000.0;
         double mass = 2.0 + fuel.Fuel;
         double gravity = 9.81;
         double pitchRad = state.Orientation.Y * System.Math.PI / 180.0;
-        var thrustDir = new Vector3Legacy(0, System.Math.Cos(pitchRad), System.Math.Sin(pitchRad));
-        var thrustVec = thrustDir * thrust;
-        var netForce = thrustVec + new Vector3Legacy(0, -mass * gravity, 0);
+        var thrustDir = new Vector3(0f, (float)System.Math.Cos(pitchRad), (float)System.Math.Sin(pitchRad));
+        var thrustVec = thrustDir * (float)thrust;
+        var netForce = thrustVec + new Vector3(0, (float)(-mass * gravity), 0);
         double rho = 1.225, Cd = 0.75, A = 1.0;
         var v = state.Velocity;
-        double vMag = v.Magnitude();
+        double vMag = v.Length();
         if (vMag > 0)
         {
-            var dragDir = v * (-1.0 / vMag);
+            var dragDir = v * (float)(-1.0 / vMag);
             double dragMag = 0.5 * rho * Cd * A * vMag * vMag;
-            var drag = dragDir * dragMag;
+            var drag = dragDir * (float)dragMag;
             netForce += drag;
         }
-        state.Acceleration = netForce / mass;
+        state.Acceleration = netForce / (float)mass;
         state.Velocity += state.Acceleration * 1.0;
         state.Position += state.Velocity * 1.0;
         Assert.True(state.Velocity.Y > 0, "Vessel should accelerate upward with upward thrust");

@@ -48,3 +48,7 @@
 /workspace/src/CORIS.Sim/obj/Debug/net8.0/CORIS.Sim.pdb
 /workspace/src/CORIS.Sim/obj/Debug/net8.0/CORIS.Sim.genruntimeconfig.cache
 /workspace/src/CORIS.Sim/obj/Debug/net8.0/ref/CORIS.Sim.dll
+/workspace/src/CORIS.Sim/bin/Debug/net8.0/runtimes/osx/native/MoltenVK_icd.json
+/workspace/src/CORIS.Sim/bin/Debug/net8.0/runtimes/osx/native/libMoltenVK.dylib
+/workspace/src/CORIS.Sim/bin/Debug/net8.0/runtimes/tvos/native/libMoltenVK.a
+/workspace/src/CORIS.Sim/bin/Debug/net8.0/runtimes/tvossimulator/native/libMoltenVK.a

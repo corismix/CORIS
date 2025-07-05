@@ -1,30 +1,30 @@
 {
   "format": 1,
   "restore": {
-    "/Users/caseymould/Documents/repos/CORIS/src/CORIS.Sim/CORIS.Sim.csproj": {}
+    "/workspace/src/CORIS.Sim/CORIS.Sim.csproj": {}
   },
   "projects": {
-    "/Users/caseymould/Documents/repos/CORIS/src/CORIS.Core/CORIS.Core.csproj": {
+    "/workspace/src/CORIS.Core/CORIS.Core.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/caseymould/Documents/repos/CORIS/src/CORIS.Core/CORIS.Core.csproj",
+        "projectUniqueName": "/workspace/src/CORIS.Core/CORIS.Core.csproj",
         "projectName": "CORIS.Core",
-        "projectPath": "/Users/caseymould/Documents/repos/CORIS/src/CORIS.Core/CORIS.Core.csproj",
-        "packagesPath": "/Users/caseymould/.nuget/packages/",
-        "outputPath": "/Users/caseymould/Documents/repos/CORIS/src/CORIS.Core/obj/",
+        "projectPath": "/workspace/src/CORIS.Core/CORIS.Core.csproj",
+        "packagesPath": "/home/ubuntu/.nuget/packages/",
+        "outputPath": "/workspace/src/CORIS.Core/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/caseymould/.nuget/NuGet/NuGet.Config"
+          "/home/ubuntu/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
-          "net9.0"
+          "net8.0"
         ],
         "sources": {
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "net9.0": {
-            "targetAlias": "net9.0",
+          "net8.0": {
+            "targetAlias": "net8.0",
             "projectReferences": {}
           }
         },
@@ -37,20 +37,19 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        },
-        "SdkAnalysisLevel": "9.0.300"
+        }
       },
       "frameworks": {
-        "net9.0": {
-          "targetAlias": "net9.0",
+        "net8.0": {
+          "targetAlias": "net8.0",
           "dependencies": {
             "JoltPhysicsSharp": {
               "target": "Package",
               "version": "[2.17.4, )"
             },
-            "Silk.NET.Vulkan": {
+            "System.Numerics.Vectors": {
               "target": "Package",
-              "version": "[2.22.0, )"
+              "version": "[4.5.0, )"
             }
           },
           "imports": [
@@ -69,34 +68,34 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.301/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.411/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "/Users/caseymould/Documents/repos/CORIS/src/CORIS.Sim/CORIS.Sim.csproj": {
+    "/workspace/src/CORIS.Sim/CORIS.Sim.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/caseymould/Documents/repos/CORIS/src/CORIS.Sim/CORIS.Sim.csproj",
+        "projectUniqueName": "/workspace/src/CORIS.Sim/CORIS.Sim.csproj",
         "projectName": "CORIS.Sim",
-        "projectPath": "/Users/caseymould/Documents/repos/CORIS/src/CORIS.Sim/CORIS.Sim.csproj",
-        "packagesPath": "/Users/caseymould/.nuget/packages/",
-        "outputPath": "/Users/caseymould/Documents/repos/CORIS/src/CORIS.Sim/obj/",
+        "projectPath": "/workspace/src/CORIS.Sim/CORIS.Sim.csproj",
+        "packagesPath": "/home/ubuntu/.nuget/packages/",
+        "outputPath": "/workspace/src/CORIS.Sim/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/caseymould/.nuget/NuGet/NuGet.Config"
+          "/home/ubuntu/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
-          "net9.0"
+          "net8.0"
         ],
         "sources": {
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "net9.0": {
-            "targetAlias": "net9.0",
+          "net8.0": {
+            "targetAlias": "net8.0",
             "projectReferences": {
-              "/Users/caseymould/Documents/repos/CORIS/src/CORIS.Core/CORIS.Core.csproj": {
-                "projectPath": "/Users/caseymould/Documents/repos/CORIS/src/CORIS.Core/CORIS.Core.csproj"
+              "/workspace/src/CORIS.Core/CORIS.Core.csproj": {
+                "projectPath": "/workspace/src/CORIS.Core/CORIS.Core.csproj"
               }
             }
           }
@@ -110,12 +109,11 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        },
-        "SdkAnalysisLevel": "9.0.300"
+        }
       },
       "frameworks": {
-        "net9.0": {
-          "targetAlias": "net9.0",
+        "net8.0": {
+          "targetAlias": "net8.0",
           "dependencies": {
             "Silk.NET.MoltenVK.Native": {
               "target": "Package",
@@ -150,7 +148,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.301/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.411/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

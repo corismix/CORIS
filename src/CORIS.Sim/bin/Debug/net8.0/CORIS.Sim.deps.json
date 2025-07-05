@@ -9,12 +9,10 @@
       "CORIS.Sim/1.0.0": {
         "dependencies": {
           "CORIS.Core": "1.0.0",
-          "JoltPhysicsSharp": "2.17.4",
-          "Silk.NET.MoltenVK.Native": "2.18.0",
+          "Silk.NET.MoltenVK.Native": "2.22.0",
           "Silk.NET.Vulkan": "2.22.0",
           "Silk.NET.Vulkan.Extensions.KHR": "2.22.0",
-          "Silk.NET.Windowing": "2.22.0",
-          "System.Numerics.Vectors": "4.5.0"
+          "Silk.NET.Windowing": "2.22.0"
         },
         "runtime": {
           "CORIS.Sim.dll": {}
@@ -137,7 +135,7 @@
           }
         }
       },
-      "Silk.NET.MoltenVK.Native/2.18.0": {
+      "Silk.NET.MoltenVK.Native/2.22.0": {
         "runtimeTargets": {
           "runtimes/ios/native/libMoltenVK.a": {
             "rid": "ios",
@@ -151,6 +149,26 @@
           },
           "runtimes/maccatalyst/native/libMoltenVK.a": {
             "rid": "maccatalyst",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/osx/native/MoltenVK_icd.json": {
+            "rid": "osx",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/osx/native/libMoltenVK.dylib": {
+            "rid": "osx",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/tvos/native/libMoltenVK.a": {
+            "rid": "tvos",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/tvossimulator/native/libMoltenVK.a": {
+            "rid": "tvossimulator",
             "assetType": "native",
             "fileVersion": "0.0.0.0"
           }
@@ -331,12 +349,12 @@
       "path": "silk.net.maths/2.22.0",
       "hashPath": "silk.net.maths.2.22.0.nupkg.sha512"
     },
-    "Silk.NET.MoltenVK.Native/2.18.0": {
+    "Silk.NET.MoltenVK.Native/2.22.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-XPOQHsDWW19fW3Ox1miZbZbp/sq4EFD7iq/8RQPT4Wk7xnYW0+Sms59G6pegUvecAY5+CcTP0XCujS7xKhCNcg==",
-      "path": "silk.net.moltenvk.native/2.18.0",
-      "hashPath": "silk.net.moltenvk.native.2.18.0.nupkg.sha512"
+      "sha512": "sha512-E74FhpqpXngAAbHHpP4eT03FK46aIE5Yxw39bMsOjOSHvq+Uoy2bd/Cl077D6qo5QdJAau0mwn2KeqXAlliYzA==",
+      "path": "silk.net.moltenvk.native/2.22.0",
+      "hashPath": "silk.net.moltenvk.native.2.22.0.nupkg.sha512"
     },
     "Silk.NET.Vulkan/2.22.0": {
       "type": "package",
