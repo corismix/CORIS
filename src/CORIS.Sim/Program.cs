@@ -1,443 +1,215 @@
 using System;
-using System.IO;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using System.Runtime.InteropServices;
+using System.Threading;
 using CORIS.Core;
-using Silk.NET.Windowing;
+using CORIS.Core.SoA;
 using System.Numerics;
+using Silk.NET.Windowing;
 
 namespace CORIS.Sim
 {
     class Program
     {
-        static void Main(string[] args)
+        private static SimulationState _simulationState = new();
+        private static PhysicsEngine _physicsEngine = new(_simulationState);
+
+        // Main entry point, handles argument dispatching
+        public static void Main(string[] args)
         {
-            // Check for help flag
             if (args.Contains("--help") || args.Contains("-h"))
             {
                 PrintHelp();
-                return;
             }
-            
-            // Check for Vulkan test flag
-            if (args.Contains("--vulkan-test"))
+            else if (args.Contains("--vulkan-test"))
             {
                 Console.WriteLine("Running Vulkan test without window creation");
-                VulkanTest.RunHeadlessTest();
-                return;
+                VulkanDemo.RunHeadless();
             }
-            
-            // Check for Vulkan demo flag
-            if (args.Contains("--vulkan") || args.Contains("--vk") || args.Contains("--metal"))
+            else if (args.Contains("--vulkan") || args.Contains("--vk") || args.Contains("--metal"))
             {
-                bool isMacOS = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
-                
-                Console.WriteLine("Starting CORIS Vulkan Demo");
-                Console.WriteLine("=========================");
-                
-                // Detect platform and inform about MoltenVK on macOS
-                if (isMacOS)
-                {
-                    Console.WriteLine("macOS detected: Using MoltenVK to translate Vulkan to Metal");
-                    Console.WriteLine("MoltenVK is loaded automatically via Silk.NET.MoltenVK.Native");
-                    Console.WriteLine("MoltenVK translates Vulkan API calls to Metal under the hood");
-                    Console.WriteLine("This allows the same Vulkan code to run on macOS without changes");
-                    
-                    if (args.Contains("--metal"))
-                    {
-                        Console.WriteLine("Note: --metal flag detected - this is the same as --vulkan on macOS");
-                    }
-                }
-                else if (args.Contains("--metal"))
-                {
-                    Console.WriteLine("Warning: --metal flag is only relevant on macOS");
-                    Console.WriteLine("On this platform, native Vulkan is used directly");
-                }
-                
-                // Parse extra Vulkan dev flags
-                bool enableVkTrace = args.Contains("--vk-trace");
-                bool enableVkValidation = args.Contains("--vk-validate");
-
-                if (enableVkTrace)
-                {
-                    Environment.SetEnvironmentVariable("MVK_CONFIG_TRACE_VULKAN_CALLS", "1");
-                }
-                if (enableVkValidation)
-                {
-                    Environment.SetEnvironmentVariable("VK_LAYER_PATH", string.Empty); // let loader locate default validation layers
-                    Environment.SetEnvironmentVariable("VK_INSTANCE_LAYERS", "VK_LAYER_KHRONOS_validation");
-                }
-                
-                try
-                {
-                    VulkanDemo.Run();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error: {ex.Message}");
-                    Console.WriteLine(ex.StackTrace);
-                }
-                return;
+                VulkanDemo.Run();
             }
-            
-            // Regular simulation mode
-            RunSimulation();
+            else if (args.Contains("--rocket-builder"))
+            {
+                RunRocketBuilder();
+            }
+            else if (args.Contains("--sim"))
+            {
+                RunSimulation();
+            }
+            else
+            {
+                // Default action is the "Hello Orbit" demo
+                RunHelloOrbit();
+            }
         }
-        
-        static void PrintHelp()
+
+        private static void RunRocketBuilder()
         {
-            Console.WriteLine("CORIS Rocketry Simulation Engine");
-            Console.WriteLine("===============================");
-            Console.WriteLine("Command line options:");
-            Console.WriteLine("  --help, -h        : Show this help message");
-            Console.WriteLine("  --vulkan, --vk    : Run the Vulkan rendering demo");
-            Console.WriteLine("  --vulkan-test     : Run a basic Vulkan test without window creation");
-            Console.WriteLine("  --metal           : Run with Metal rendering on macOS (same as --vulkan)");
-            Console.WriteLine("  --vk-trace        : Enable MoltenVK call tracing (macOS only)");
-            Console.WriteLine("  --vk-validate     : Enable Vulkan validation layers if available");
-            Console.WriteLine();
-            Console.WriteLine("On macOS, the Vulkan API calls are automatically translated to Metal");
-            Console.WriteLine("using MoltenVK. This is transparent to the application code.");
+            var builder = new RocketBuilder("assets/parts.json");
+            builder.Run();
         }
-        
-        static void RunSimulation()
+
+        public static void RunHelloOrbit()
         {
-            // Load parts from JSON
-            string partsPath = Path.Combine("assets", "parts.json");
-            var parts = ModLoader.LoadPartsFromJson(partsPath);
-            Console.WriteLine($"Loaded {parts.Count} parts from {partsPath}");
+            Console.WriteLine("Running 'Hello Orbit' demo...");
+            Console.WriteLine("============================");
 
-            // List all loaded parts and their pieces/properties
-            foreach (var part in parts)
+            // Simulation parameters
+            const double G = 6.67430e-11; // Gravitational constant
+            const float dt = 0.1f;        // Time step (s)
+            const int simulationSteps = 10000;
+            const int reportInterval = 500; // Print status every N steps
+
+            // Central body (e.g., a planet)
+            var centralBodyMass = 5.972e24f; // kg (mass of Earth)
+            var centralBodyPosition = Vector3.Zero;
+
+            // Satellite
+            var satellite = new VesselState
             {
-                Console.WriteLine($"Part: {part.Name} (Id: {part.Id})");
-                foreach (var piece in part.Pieces)
+                Mass = 1000f, // kg
+                Position = new Vector3(6.771e6f, 0, 0), // 400 km altitude above Earth radius of 6371km
+            };
+
+            // Calculate initial velocity for a stable circular orbit
+            float r = satellite.Position.Length();
+            float orbitalSpeed = (float)Math.Sqrt(G * centralBodyMass / r);
+            satellite.Velocity = new Vector3(0, orbitalSpeed, 0);
+
+            Console.WriteLine($"Initial State:");
+            Console.WriteLine($"  Position: {satellite.Position} m");
+            Console.WriteLine($"  Velocity: {satellite.Velocity} m/s (Magnitude: {satellite.Velocity.Length():F2} m/s)");
+            Console.WriteLine($"  Orbital Speed for stable orbit: {orbitalSpeed:F2} m/s");
+            Console.WriteLine("\nStarting simulation...\n");
+
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            for (int i = 0; i < simulationSteps; i++)
+            {
+                // Calculate gravitational force
+                var toSatellite = satellite.Position - centralBodyPosition;
+                var distSq = toSatellite.LengthSquared();
+                var forceDir = Vector3.Normalize(toSatellite) * -1.0f; // Force points towards the central body
+                var forceMag = (float)(G * centralBodyMass * satellite.Mass / distSq);
+                var force = forceDir * forceMag;
+
+                // Update physics state (using simple Euler integration)
+                satellite.Acceleration = force / satellite.Mass;
+                satellite.Velocity += satellite.Acceleration * dt;
+                satellite.Position += satellite.Velocity * dt;
+
+                if (i % reportInterval == 0)
                 {
-                    Console.WriteLine($"  Piece: {piece.Type} (Id: {piece.Id}), Mass: {piece.Mass}");
-                    if (piece.Properties != null && piece.Properties.Count > 0)
-                    {
-                        Console.WriteLine("    Properties:");
-                        foreach (var kv in piece.Properties)
-                        {
-                            Console.WriteLine($"      {kv.Key}: {kv.Value}");
-                        }
-                    }
+                    Console.WriteLine($"Step {i}:");
+                    Console.WriteLine($"  Position: {satellite.Position} (Altitude: {(satellite.Position.Length() - 6.371e6f) / 1000:F2} km)");
+                    Console.WriteLine($"  Velocity: {satellite.Velocity.Length():F2} m/s");
                 }
             }
 
-            // Build a vessel from all loaded parts
-            var vessel = new Vessel { Id = "vessel-1", Name = "Modded Rocket", Parts = parts };
-            Console.WriteLine($"Vessel: {vessel.Name}");
-            Console.WriteLine($"Total Mass: {vessel.Mass} units");
-
-            // Create a vessel state for physics
-            var vesselState = new VesselState();
-
-            // Calculate initial fuel (sum all tank pieces)
-            double initialFuel = 0;
-            foreach (var part in vessel.Parts)
-            {
-                foreach (var piece in part.Pieces)
-                {
-                    if (piece.Type == "tank" && piece.Properties != null && piece.Properties.TryGetValue("fuel", out var f))
-                        initialFuel += f;
-                }
-            }
-            var fuelState = new FuelState { Fuel = initialFuel };
-
-            // Collect altitude history for ASCII graph (now Y position)
-            var altitudeHistory = new System.Collections.Generic.List<double>();
-            double maxAltitude = vesselState.Position.Y;
-            double maxVelocity = vesselState.Velocity.Length();
-            string stopReason = "";
-            int step = 0;
-            bool staged = false;
-            var pitchHistory = new System.Collections.Generic.List<double>();
-            while (true)
-            {
-                // Sub-stepping: 10 sub-steps per main step
-                for (int sub = 0; sub < 10; sub++)
-                {
-                    UpdateSubstep(vessel, vesselState, fuelState, 0.1);
-                }
-                altitudeHistory.Add(vesselState.Position.Y);
-                pitchHistory.Add(vesselState.Orientation.Y);
-                if (vesselState.Position.Y > maxAltitude) maxAltitude = vesselState.Position.Y;
-                if (vesselState.Velocity.Length() > maxVelocity) maxVelocity = vesselState.Velocity.Length();
-                step++;
-                if (step % 10 == 0 || fuelState.Fuel <= 0 || vesselState.Position.Y < 0)
-                {
-                    Render(vessel, vesselState, fuelState, step);
-                }
-                if (fuelState.Fuel <= 0 && !staged)
-                {
-                    // Jettison first tank part
-                    var tank = vessel.Parts.FirstOrDefault(p => p.Pieces.Any(pc => pc.Type == "tank"));
-                    if (tank != null)
-                    {
-                        vessel.Parts.Remove(tank);
-                        Console.WriteLine($"[Staging] Jettisoned part: {tank.Name}");
-                        staged = true;
-                        continue;
-                    }
-                }
-                if (fuelState.Fuel <= 0)
-                {
-                    stopReason = "Out of fuel";
-                    break;
-                }
-                if (vesselState.Position.Y < 0)
-                {
-                    stopReason = $"Crashed at step {step}, position {vesselState.Position.Y:F2} m";
-                    break;
-                }
-            }
-            // Flight summary
-            Console.WriteLine("\n--- Flight Summary ---");
-            Console.WriteLine($"Max altitude: {maxAltitude:F2} m");
-            Console.WriteLine($"Max velocity: {maxVelocity:F2} m/s");
-            Console.WriteLine($"Total flight time: {step} s");
-            Console.WriteLine($"Reason for stop: {stopReason}");
-
-            // ASCII graph of altitude (Y)
-            PrintAsciiAltitudeGraph(altitudeHistory, maxAltitude);
-            PrintAsciiPitchGraph(pitchHistory);
-
-            // End of simulation
-            Console.WriteLine("\nSimulation complete. Press Enter to exit.");
-            Console.ReadLine();
+            stopwatch.Stop();
+            Console.WriteLine($"\nSimulation finished in {stopwatch.Elapsed.TotalSeconds:F2} seconds.");
         }
 
-        static void Update(Vessel vessel, VesselState state, FuelState fuel)
+        private static void PrintHelp()
         {
-            // 3D physics: thrust in orientation, gravity in -Y
-            var thrustVec = new Vector3(0, 0, 0);
-            double fuelUsed = 0.0;
-            double g0 = 9.80665; // standard gravity
-            double dryMass = 0;
-            double totalIsp = 0;
-            double totalThrust = 0;
-            foreach (var part in vessel.Parts)
-            {
-                foreach (var piece in part.Pieces)
-                {
-                    if (piece.Type == "engine" && piece.Properties != null && piece.Properties.TryGetValue("thrust", out var t) && piece.Properties.TryGetValue("isp", out var isp))
-                    {
-                        double gimbal = 0.0;
-                        if (piece.Properties.TryGetValue("gimbal", out var g))
-                            gimbal = g;
-                        double pitch = state.Orientation.Y + gimbal;
-                        double pitchRad = pitch * Math.PI / 180.0;
-                        var dir = new Vector3(0, (float)Math.Cos(pitchRad), (float)Math.Sin(pitchRad));
-                        thrustVec += dir * (float)t;
-                        totalThrust += t;
-                        totalIsp += isp;
-                        if (fuel.Fuel > 0)
-                        {
-                            // Tsiolkovsky: mDot = Thrust / (Isp * g0)
-                            double mDot = t / (isp * g0); // fuel per second
-                            fuelUsed += mDot;
-                        }
-                    }
-                }
-            }
-            // Reduce vessel mass as fuel burns
-            foreach (var part in vessel.Parts)
-            {
-                foreach (var piece in part.Pieces)
-                {
-                    if (piece.Type == "tank" && piece.Properties != null && piece.Properties.TryGetValue("fuel", out var f))
-                        dryMass += piece.Mass; // tank mass only
-                    else
-                        dryMass += piece.Mass;
-                }
-            }
-            double mass = dryMass + fuel.Fuel;
-            double gravity = 9.81; // m/s^2, Earth gravity
-            // Net force: sum of all engine thrusts, gravity in -Y
-            var netForce = thrustVec + new Vector3(0, (float)(-mass * gravity), 0);
-
-            // Drag (air resistance)
-            double rho = 1.225; // air density at sea level (kg/m^3)
-            double Cd = 0.75;   // drag coefficient (typical for rockets)
-            double A = 1.0;     // cross-sectional area (m^2)
-            var v = state.Velocity;
-            double vMag = v.Length();
-            if (vMag > 0)
-            {
-                var dragDir = v * (float)(-1.0 / vMag); // opposite to velocity
-                double dragMag = 0.5 * rho * Cd * A * vMag * vMag;
-                var drag = dragDir * (float)dragMag;
-                netForce += drag;
-            }
-
-            state.Acceleration = netForce / (float)mass;
-            state.Velocity += state.Acceleration * 1.0f; // dt = 1s
-            state.Position += state.Velocity * 1.0f; // dt = 1s
-
-            // Tsiolkovsky: update fuel and mass
-            fuel.Fuel -= fuelUsed;
-            if (fuel.Fuel < 0) fuel.Fuel = 0;
-
-            // Stub: update orientation and angular velocity (simulate gimbal/RCS)
-            if (fuel.Fuel > 0)
-            {
-                double angularAccel = 1.0; // deg/s^2, simple constant
-                var angVel = state.AngularVelocity;
-                angVel.Y += (float)(angularAccel * 1.0); // pitch axis
-                state.AngularVelocity = angVel;
-            }
-            state.Orientation += state.AngularVelocity * 1.0f; // deg/s * dt
+            Console.WriteLine("CORIS Simulator");
+            Console.WriteLine("Usage: dotnet run --project src/CORIS.Sim -- [command]");
+            Console.WriteLine("Commands:");
+            Console.WriteLine("  --help, -h          Show this help message");
+            Console.WriteLine("  --sim               Run the new SoA physics simulation");
+            Console.WriteLine("  --rocket-builder    Run the ASCII rocket builder (WIP)");
+            Console.WriteLine("  --vulkan            Run the Vulkan graphics demo");
+            Console.WriteLine("  --vulkan-test       Run a headless Vulkan test");
+            Console.WriteLine("  (no command)        Run the 'Hello Orbit' demo");
         }
 
-        static void UpdateSubstep(Vessel vessel, VesselState state, FuelState fuel, double dt)
+        #region New Simulation Loop
+        private static void RunSimulation()
         {
-            // 3D physics: thrust in orientation, gravity in -Y
-            var thrustVec = new Vector3(0, 0, 0);
-            double fuelUsed = 0.0;
-            double g0 = 9.80665; // standard gravity
-            double dryMass = 0;
-            double totalIsp = 0;
-            double totalThrust = 0;
-            foreach (var part in vessel.Parts)
+            Console.WriteLine("=== Running new SoA Physics Simulation ===");
+
+            // 1. Create a simple rocket vessel
+            var cockpit = new Piece { Id = "1", Name = "Cockpit", Mass = 500, Type = "cockpit" };
+            var fuelTank = new Piece { Id = "2", Name = "Fuel Tank", Mass = 1000, Type = "tank", Properties = new() { { "fuel", 5000.0 } } };
+            var enginePiece = new Piece { Id = "3", Name = "Engine", Mass = 750, Type = "engine", Properties = new() { { "thrust", 150000.0 }, { "isp", 300.0 } } };
+
+            // Add pieces to the simulation state
+            var cockpitGuid = _simulationState.AddEntity(cockpit, new Vector3(0, 2, 0), Quaternion.Identity);
+            var tankGuid = _simulationState.AddEntity(fuelTank, new Vector3(0, 0, 0), Quaternion.Identity);
+            var engineGuid = _simulationState.AddEntity(enginePiece, new Vector3(0, -2, 0), Quaternion.Identity);
+
+            Console.WriteLine($"Created {cockpit.Name} with GUID: {cockpitGuid}");
+            Console.WriteLine($"Created {fuelTank.Name} with GUID: {tankGuid}");
+            Console.WriteLine($"Created {enginePiece.Name} with GUID: {engineGuid}");
+            Console.WriteLine($"Total entities: {_simulationState.EntityCount}");
+
+            // Create the engine struct for physics calculations
+            var partEngine = new PartEngine
             {
-                foreach (var piece in part.Pieces)
+                Thrust = (double)enginePiece.Properties["thrust"],
+                Isp = (double)enginePiece.Properties["isp"],
+                DryMass = enginePiece.Mass,
+                Gimbal = 0
+            };
+
+            // 2. Run the simulation loop
+            const int simulationSteps = 500;
+            const int reportInterval = 50;
+            const double dt = 1.0 / 60.0; // 60Hz update rate
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            for (int i = 0; i < simulationSteps; i++)
+            {
+                // 1. Clear forces from the previous frame
+                _physicsEngine.ClearForces();
+
+                // 2. Apply controlled forces (e.g., thrust)
+                var engineIndex = _simulationState.GetEntityIndex(engineGuid);
+                if (engineIndex != -1)
                 {
-                    if (piece.Type == "engine" && piece.Properties != null && piece.Properties.TryGetValue("thrust", out var t) && piece.Properties.TryGetValue("isp", out var isp))
-                    {
-                        double gimbal = 0.0;
-                        if (piece.Properties.TryGetValue("gimbal", out var g))
-                            gimbal = g;
-                        double pitch = state.Orientation.Y + gimbal;
-                        double pitchRad = pitch * Math.PI / 180.0;
-                        var dir = new Vector3(0, (float)Math.Cos(pitchRad), (float)Math.Sin(pitchRad));
-                        thrustVec += dir * (float)t;
-                        totalThrust += t;
-                        totalIsp += isp;
-                        if (fuel.Fuel > 0)
-                        {
-                            // Tsiolkovsky: mDot = Thrust / (Isp * g0)
-                            double mDot = t / (isp * g0); // fuel per second
-                            fuelUsed += mDot * dt;
-                        }
-                    }
+                    // Apply 100% throttle
+                    _physicsEngine.ApplyThrustForce(engineIndex, partEngine, 1.0, dt);
                 }
-            }
-            // Reduce vessel mass as fuel burns
-            foreach (var part in vessel.Parts)
-            {
-                foreach (var piece in part.Pieces)
+
+                // 3. Update the physics engine (applies environmental forces and integrates motion)
+                _physicsEngine.Update(dt);
+
+                // 4. Report state periodically
+                if (i % reportInterval == 0)
                 {
-                    if (piece.Type == "tank" && piece.Properties != null && piece.Properties.TryGetValue("fuel", out var f))
-                        dryMass += piece.Mass; // tank mass only
-                    else
-                        dryMass += piece.Mass;
+                    Console.WriteLine($"\n--- Step {i} ---");
+                    PrintSimulationState();
                 }
-            }
-            double mass = dryMass + fuel.Fuel;
-            double gravity = 9.81; // m/s^2, Earth gravity
-            // Net force: sum of all engine thrusts, gravity in -Y
-            var netForce = thrustVec + new Vector3(0, (float)(-mass * gravity), 0);
 
-            // Drag (air resistance)
-            double rho = 1.225; // air density at sea level (kg/m^3)
-            double Cd = 0.75;   // drag coefficient (typical for rockets)
-            double A = 1.0;     // cross-sectional area (m^2)
-            var v = state.Velocity;
-            double vMag = v.Length();
-            if (vMag > 0)
-            {
-                var dragDir = v * (float)(-1.0 / vMag); // opposite to velocity
-                double dragMag = 0.5 * rho * Cd * A * vMag * vMag;
-                var drag = dragDir * (float)dragMag;
-                netForce += drag;
+                Thread.Sleep(16); // Simulate a 60Hz game loop
             }
 
-            state.Acceleration = netForce / (float)mass;
-            state.Velocity += state.Acceleration * (float)dt;
-            state.Position += state.Velocity * (float)dt;
-
-            // Tsiolkovsky: update fuel and mass
-            fuel.Fuel -= fuelUsed;
-            if (fuel.Fuel < 0) fuel.Fuel = 0;
-
-            // Stub: update orientation and angular velocity (simulate gimbal/RCS)
-            if (fuel.Fuel > 0)
-            {
-                double angularAccel = 1.0; // deg/s^2, simple constant
-                var angVel = state.AngularVelocity;
-                angVel.Y += (float)(angularAccel * dt); // pitch axis
-                state.AngularVelocity = angVel;
-            }
-            state.Orientation += state.AngularVelocity * (float)dt; // deg/s * dt
+            stopwatch.Stop();
+            Console.WriteLine($"\nSimulation finished in {stopwatch.Elapsed.TotalSeconds:F2} seconds.");
         }
 
-        static void Render(Vessel vessel, VesselState state, FuelState fuel, int step)
+        private static void PrintSimulationState()
         {
-            Console.WriteLine($"[Step {step}] Vessel mass: {vessel.Mass}, Fuel: {fuel.Fuel:F2}");
-            Console.WriteLine($"[Physics] Pos: {state.Position}, Vel: {state.Velocity}, Accel: {state.Acceleration}");
-            Console.WriteLine($"[Attitude] Orientation (Yaw, Pitch, Roll): {state.Orientation}, Angular Vel: {state.AngularVelocity}");
-            Console.WriteLine($"[Render] Drawing vessel: {vessel.Name}");
-        }
+            for (int i = 0; i < _simulationState.EntityCount; i++)
+            {
+                var guid = _simulationState.GetGuidFromIndex(i);
+                var type = _simulationState.PieceTypes[i];
+                var pos = _simulationState.Positions[i];
+                var vel = _simulationState.Velocities[i];
+                var mass = _simulationState.Masses[i];
+                var fuel = _simulationState.Fuels[i];
 
-        static void PrintAsciiAltitudeGraph(System.Collections.Generic.List<double> history, double maxAlt)
-        {
-            const int rows = 40;
-            int cols = history.Count;
-            double minAlt = 0;
-            double range = maxAlt - minAlt;
-            if (range < 1) range = 1;
-            char[,] grid = new char[rows, cols];
-            for (int r = 0; r < rows; r++)
-                for (int c = 0; c < cols; c++)
-                    grid[r, c] = ' ';
-            for (int c = 0; c < cols; c++)
-            {
-                int row = rows - 1 - (int)(((history[c] - minAlt) / range) * (rows - 1));
-                if (row < 0) row = 0;
-                if (row >= rows) row = rows - 1;
-                grid[row, c] = '*';
-            }
-            Console.WriteLine("\n--- Altitude (ASCII Graph) ---");
-            for (int r = 0; r < rows; r++)
-            {
-                double alt = minAlt + (range * (rows - 1 - r)) / (rows - 1);
-                Console.Write($"{alt,8:F0}m |");
-                for (int c = 0; c < cols; c++)
-                    Console.Write(grid[r, c]);
-                Console.WriteLine();
+                Console.WriteLine($"  [{i}] {type} ({guid.ToString().Substring(0, 8)})");
+                Console.WriteLine($"      Pos: {pos.X:F2}, {pos.Y:F2}, {pos.Z:F2} m");
+                Console.WriteLine($"      Vel: {vel.X:F2}, {vel.Y:F2}, {vel.Z:F2} m/s (Speed: {vel.Length():F2} m/s)");
+                Console.WriteLine($"      Mass: {mass:F2} kg | Fuel: {fuel:F2} kg");
             }
         }
-
-        static void PrintAsciiPitchGraph(System.Collections.Generic.List<double> history)
-        {
-            const int rows = 20;
-            int cols = history.Count;
-            double minPitch = history.Min();
-            double maxPitch = history.Max();
-            double range = maxPitch - minPitch;
-            if (range < 1) range = 1;
-            char[,] grid = new char[rows, cols];
-            for (int r = 0; r < rows; r++)
-                for (int c = 0; c < cols; c++)
-                    grid[r, c] = ' ';
-            for (int c = 0; c < cols; c++)
-            {
-                int row = rows - 1 - (int)(((history[c] - minPitch) / range) * (rows - 1));
-                if (row < 0) row = 0;
-                if (row >= rows) row = rows - 1;
-                grid[row, c] = '*';
-            }
-            Console.WriteLine("\n--- Pitch (ASCII Graph) ---");
-            for (int r = 0; r < rows; r++)
-            {
-                double pitch = minPitch + (range * (rows - 1 - r)) / (rows - 1);
-                Console.Write($"{pitch,8:F0}°|");
-                for (int c = 0; c < cols; c++)
-                    Console.Write(grid[r, c]);
-                Console.WriteLine();
-            }
-        }
+        #endregion
     }
 }
-

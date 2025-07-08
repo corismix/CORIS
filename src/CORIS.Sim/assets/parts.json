@@ -1,0 +1,29 @@
+[
+  {
+    "id": "core-cockpit-s1",
+    "name": "Command Pod Mk1",
+    "type": "cockpit",
+    "mass": 500,
+    "properties": {}
+  },
+  {
+    "id": "core-fuel-s1",
+    "name": "FL-T400 Fuel Tank",
+    "type": "tank",
+    "mass": 1000,
+    "properties": {
+      "fuel": 5000
+    }
+  },
+  {
+    "id": "core-engine-s1",
+    "name": "LV-T30 'Reliant' Liquid Fuel Engine",
+    "type": "engine",
+    "mass": 750,
+    "properties": {
+      "thrust": 215000,
+      "isp": 265,
+      "dryMass": 750
+    }
+  }
+]

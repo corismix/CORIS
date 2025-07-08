@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using System.Xml.Serialization;
 
 namespace CORIS.Core
 {
@@ -9,6 +10,7 @@ namespace CORIS.Core
     public class Piece
     {
         public string Id { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
         public string Type { get; set; } = string.Empty;
         public double Mass { get; set; } = 0.0;
         public Dictionary<string, double>? Properties { get; set; } = new();
@@ -38,6 +40,11 @@ namespace CORIS.Core
         public string Name { get; set; } = string.Empty;
         public List<Part> Parts { get; set; } = new();
         public double Mass => ComputeMass();
+
+        public void RecalculateMass()
+        {
+            // The Mass property is dynamically calculated, so this method is for legacy compatibility.
+        }
 
         private double ComputeMass()
         {
@@ -83,6 +90,7 @@ namespace CORIS.Core
         // Orientation (Euler angles in degrees)
         public System.Numerics.Vector3 Orientation { get; set; } = new System.Numerics.Vector3(0f, 90f, 0f); // (Yaw, Pitch, Roll)
         public System.Numerics.Vector3 AngularVelocity { get; set; } = new System.Numerics.Vector3(0f, 0f, 0f); // deg/s
+        public float Mass { get; set; } = 0f; // kg
         // Double-precision orbital state
         public Vector3d OrbitalPosition { get; set; } = new Vector3d(0, 0, 0); // meters
         public Vector3d OrbitalVelocity { get; set; } = new Vector3d(0, 0, 0); // m/s
@@ -107,8 +115,13 @@ namespace CORIS.Core
         }
         public static List<Part> LoadPartsFromXml(string xmlPath)
         {
-            // TODO: Implement XML loading
-            return new List<Part>();
+            if (!File.Exists(xmlPath))
+                throw new FileNotFoundException($"Parts file not found: {xmlPath}");
+
+            var serializer = new XmlSerializer(typeof(List<Part>));
+            using var fileStream = new FileStream(xmlPath, FileMode.Open);
+            var result = serializer.Deserialize(fileStream) as List<Part>;
+            return result ?? new List<Part>();
         }
     }
-} 
+}

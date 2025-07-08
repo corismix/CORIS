@@ -78,4 +78,4 @@ public class PhysicsTests
         state.Position += state.Velocity * 1.0f;
         Assert.True(state.Velocity.Y > 0, "Vessel should accelerate upward with upward thrust");
     }
-} 
+}

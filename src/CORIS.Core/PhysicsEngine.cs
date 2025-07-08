@@ -1,6 +1,7 @@
 using System;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using CORIS.Core.SoA;
 
 namespace CORIS.Core
 {
@@ -11,140 +12,97 @@ namespace CORIS.Core
     /// </summary>
     public class PhysicsEngine : IDisposable
     {
-        // Data-oriented storage for physics entities - Structure of Arrays (SoA) pattern
-        private readonly List<PiecePhysicsState> _pieceStates;
-        private readonly Dictionary<int, int> _pieceIdToIndex;
-        
+        // The simulation state, managed externally, using a Structure-of-Arrays (SoA) layout.
+        private readonly SimulationState _simulationState;
+
         // Performance tracking and configuration
         private double _lastUpdateTime;
         private int _currentStep = 0;
         private readonly Vector3 _gravity = new Vector3(0, -9.81f, 0);
-        
+
         // High-performance physics settings optimized for rocketry simulation
         private const int SubStepsPerFrame = 4; // For stable high-speed physics
         private const double TimeStepLimit = 1.0 / 120.0; // 120Hz max timestep
-        
-        public PhysicsEngine()
+
+        public PhysicsEngine(SimulationState simulationState)
         {
             Console.WriteLine("=== Initializing CORIS High-Performance Physics Engine ===");
-            
-            _pieceStates = new List<PiecePhysicsState>();
-            _pieceIdToIndex = new Dictionary<int, int>();
-            
+
+            _simulationState = simulationState;
+
             Console.WriteLine("Physics engine initialized successfully");
             Console.WriteLine($"Max timestep: {TimeStepLimit * 1000:F1}ms");
             Console.WriteLine($"Sub-steps per frame: {SubStepsPerFrame}");
         }
 
         /// <summary>
-        /// Integrates thrust forces following the Tsiolkovsky rocket equation
-        /// This is the core performance-critical function from the architectural blueprint
-        /// Implements: mDot = Thrust / (Isp * g0), dv = Isp * g0 * ln(m0/m1)
+        /// Applies thrust as a force to a given entity and updates its mass and fuel.
+        /// This is now a force-based model, consistent with gravity and drag.
         /// </summary>
-        public void IntegrateThrust(in PartEngine engine, ref PiecePhysicsState state, double dt)
+        public void ApplyThrustForce(int entityIndex, in PartEngine engine, double throttle, double dt)
         {
+            // Ensure throttle is within [0, 1]
+            throttle = Math.Clamp(throttle, 0.0, 1.0);
+
+            if (_simulationState.Fuels[entityIndex] <= 0 || engine.Thrust <= 0 || throttle <= 0) return;
+
+            // Apply thrust force
+            Vector3 thrustDirection = Vector3.Transform(Vector3.UnitZ, _simulationState.Orientations[entityIndex]);
+            Vector3 thrustForce = thrustDirection * (float)engine.Thrust * (float)throttle;
+            _simulationState.Forces[entityIndex] += thrustForce;
+
+            // --- Fuel Consumption and Mass Reduction ---
             const double g0 = 9.80665; // Standard gravity (m/s²)
 
-            if (state.Fuel <= 0 || engine.Thrust <= 0) return;
-
             // Calculate mass flow rate: mDot = Thrust / (Isp * g0)
-            double mDot = engine.Thrust / (engine.Isp * g0);
-            
-            // Update mass (ensuring we don't go below dry mass)
-            double prevMass = state.Mass;
-            state.Mass = Math.Max(state.Mass - mDot * dt, engine.DryMass);
-            
-            // Calculate delta-v for this timestep using Tsiolkovsky equation
-            // This is numerical integration as recommended in the blueprint
-            if (prevMass > state.Mass)
-            {
-                double dv = engine.Isp * g0 * Math.Log(prevMass / state.Mass);
-                
-                // Apply thrust in the forward direction of the piece
-                Vector3 thrustDirection = VectorMath.Transform(VectorMath.UnitZ, state.Orientation);
-                Vector3 deltaVelocity = thrustDirection * (float)dv;
-                
-                // Apply velocity change directly to the physics state
-                state.LinearVelocity += deltaVelocity;
-                
-                // Update fuel consumption
-                state.Fuel -= mDot * dt;
-                if (state.Fuel < 0) state.Fuel = 0;
-            }
+            double mDot = (engine.Thrust / (engine.Isp * g0)) * throttle;
+
+            // Update mass based on fuel consumption for this timestep
+            double massChange = mDot * dt;
+            _simulationState.Masses[entityIndex] = Math.Max((float)(_simulationState.Masses[entityIndex] - massChange), (float)engine.DryMass);
+
+            // Update fuel
+            _simulationState.Fuels[entityIndex] = Math.Max(0, _simulationState.Fuels[entityIndex] - massChange);
         }
 
         /// <summary>
-        /// Creates a physics body for a vessel piece with optimized settings
+        /// Creates a physics body for a vessel piece and adds it to the simulation state.
         /// </summary>
-        public int CreatePieceBody(Piece piece, Vector3 position, Quaternion orientation)
+        public Guid CreatePieceBody(Piece piece, Vector3 position, Quaternion orientation)
         {
-            // Create physics state for this piece using data-oriented design
-            var physicsState = new PiecePhysicsState
-            {
-                PieceID = piece.Id,
-                Mass = piece.Mass,
-                Fuel = GetInitialFuel(piece),
-                Position = position,
-                Orientation = orientation,
-                LinearVelocity = VectorMath.Zero,
-                AngularVelocity = VectorMath.Zero,
-                Force = VectorMath.Zero,
-                Torque = VectorMath.Zero,
-                InverseMass = 1.0f / (float)piece.Mass,
-                DragCoefficient = GetDragCoefficient(piece),
-                CrossSectionalArea = GetCrossSectionalArea(piece)
-            };
-
-            // Add to data-oriented storage using Structure of Arrays pattern
-            int bodyId = _pieceStates.Count;
-            _pieceStates.Add(physicsState);
-            _pieceIdToIndex[piece.Id.GetHashCode()] = bodyId;
-
-            Console.WriteLine($"Created physics body for {piece.Type} piece: mass={piece.Mass:F1}kg");
-            return bodyId;
+            return _simulationState.AddEntity(piece, position, orientation);
         }
 
         /// <summary>
-        /// High-frequency physics update with sub-stepping for stability
-        /// Implements 120Hz sub-stepping for atmospheric flight as recommended
+        /// High-frequency physics update with sub-stepping for stability.
+        /// Applies environmental forces and integrates motion. Caller is responsible for clearing forces
+        /// and applying controlled forces (like thrust) before calling Update.
         /// </summary>
         public void Update(double deltaTime)
         {
-            _currentStep++;
             _lastUpdateTime = deltaTime;
+            double dt = Math.Min(deltaTime, TimeStepLimit);
 
-            // Clamp timestep to prevent instability
-            deltaTime = Math.Min(deltaTime, TimeStepLimit);
-
-            // Sub-stepping for high-frequency updates during atmospheric flight
-            double subDeltaTime = deltaTime / SubStepsPerFrame;
-
-            for (int step = 0; step < SubStepsPerFrame; step++)
+            double subDt = dt / SubStepsPerFrame;
+            for (int i = 0; i < SubStepsPerFrame; i++)
             {
-                // Clear forces for this substep
-                ClearForces();
-                
-                // Apply environmental forces
+                // Forces are now cleared by the caller before applying new frame-specific forces.
                 ApplyGravity();
-                ApplyAtmosphericDrag(subDeltaTime);
-                
-                // Integrate physics using Verlet integration for stability
-                IntegrateMotion(subDeltaTime);
+                ApplyAtmosphericDrag();
+                IntegrateMotion(subDt);
+                _currentStep++;
             }
         }
 
         /// <summary>
-        /// Clear all accumulated forces - called each substep
+        /// Clear all accumulated forces. Should be called by the simulation loop at the start of each frame.
         /// </summary>
-        private void ClearForces()
+        public void ClearForces()
         {
-            // Data-oriented loop for maximum cache efficiency
-            for (int i = 0; i < _pieceStates.Count; i++)
+            for (int i = 0; i < _simulationState.EntityCount; i++)
             {
-                var state = _pieceStates[i];
-                state.Force = VectorMath.Zero;
-                state.Torque = VectorMath.Zero;
-                _pieceStates[i] = state;
+                _simulationState.Forces[i] = Vector3.Zero;
+                _simulationState.Torques[i] = Vector3.Zero;
             }
         }
 
@@ -153,11 +111,9 @@ namespace CORIS.Core
         /// </summary>
         private void ApplyGravity()
         {
-            for (int i = 0; i < _pieceStates.Count; i++)
+            for (int i = 0; i < _simulationState.EntityCount; i++)
             {
-                var state = _pieceStates[i];
-                state.Force += _gravity * (float)state.Mass;
-                _pieceStates[i] = state;
+                _simulationState.Forces[i] += _gravity * _simulationState.Masses[i];
             }
         }
 
@@ -165,31 +121,26 @@ namespace CORIS.Core
         /// Apply atmospheric drag forces based on altitude and velocity
         /// Implements: FD = 0.5 * ρ * CD * A * v²
         /// </summary>
-        private void ApplyAtmosphericDrag(double deltaTime)
+        private void ApplyAtmosphericDrag()
         {
-            for (int i = 0; i < _pieceStates.Count; i++)
+            for (int i = 0; i < _simulationState.EntityCount; i++)
             {
-                var state = _pieceStates[i];
-                
-                if (state.Position.Y > 70000) continue; // Above atmosphere
-                
-                // Calculate atmospheric density based on altitude
-                double altitude = state.Position.Y;
-                double rho = CalculateAtmosphericDensity(altitude);
-                
-                if (rho <= 0) continue;
+                // Simplified altitude calculation (Y-component)
+                double altitude = _simulationState.Positions[i].Y;
+                if (altitude < 0) altitude = 0;
 
-                Vector3 velocity = state.LinearVelocity;
-                float velocityMagnitude = velocity.Length();
-                
-                if (velocityMagnitude > 0.1f)
+                // Skip drag if outside sensible atmosphere
+                if (altitude > 80000) continue;
+
+                double density = CalculateAtmosphericDensity(altitude);
+                float speed = _simulationState.Velocities[i].Length();
+
+                if (speed > 0.01f)
                 {
-                    Vector3 dragDirection = velocity / -velocityMagnitude;
-                    float dragMagnitude = (float)(0.5 * rho * state.DragCoefficient * state.CrossSectionalArea * velocityMagnitude * velocityMagnitude);
-                    Vector3 dragForce = dragDirection * dragMagnitude;
-                    
-                    state.Force += dragForce;
-                    _pieceStates[i] = state;
+                    Vector3 dragDirection = -Vector3.Normalize(_simulationState.Velocities[i]);
+                    float dragMagnitude = 0.5f * (float)density * speed * speed * _simulationState.DragCoefficients[i] * _simulationState.CrossSectionalAreas[i];
+
+                    _simulationState.Forces[i] += dragDirection * dragMagnitude;
                 }
             }
         }
@@ -200,32 +151,26 @@ namespace CORIS.Core
         private void IntegrateMotion(double dt)
         {
             float fdt = (float)dt;
-            
-            // Data-oriented integration loop for maximum performance
-            for (int i = 0; i < _pieceStates.Count; i++)
+
+            for (int i = 0; i < _simulationState.EntityCount; i++)
             {
-                var state = _pieceStates[i];
-                
-                // Linear motion integration
-                Vector3 acceleration = state.Force * state.InverseMass;
-                state.LinearVelocity += acceleration * fdt;
-                state.Position += state.LinearVelocity * fdt;
-                
-                // Angular motion integration (simplified)
-                // In a full implementation, this would use proper rotational dynamics
-                Vector3 angularAcceleration = state.Torque * state.InverseMass; // Simplified
-                state.AngularVelocity += angularAcceleration * fdt;
-                
-                // Apply angular velocity to orientation
-                if (state.AngularVelocity.Length() > 0.001f)
+                // Verlet integration for position
+                Vector3 acceleration = _simulationState.Forces[i] * _simulationState.InverseMasses[i];
+                _simulationState.Positions[i] += _simulationState.Velocities[i] * fdt + 0.5f * acceleration * fdt * fdt;
+
+                // Update velocity
+                _simulationState.Velocities[i] += acceleration * fdt;
+
+                // Simplified angular motion
+                Vector3 angular_acceleration = _simulationState.Torques[i] * _simulationState.InverseMasses[i]; // Simplified
+                _simulationState.AngularVelocities[i] += angular_acceleration * fdt;
+
+                // Update orientation from angular velocity
+                if (_simulationState.AngularVelocities[i].LengthSquared() > 0.001f)
                 {
-                    Vector3 axis = VectorMath.SafeNormalize(state.AngularVelocity);
-                    float angle = state.AngularVelocity.Length() * fdt;
-                    Quaternion deltaRotation = Quaternion.CreateFromAxisAngle(axis, angle);
-                    state.Orientation = Quaternion.Normalize(state.Orientation * deltaRotation);
+                    var delta_rotation = Quaternion.CreateFromAxisAngle(Vector3.Normalize(_simulationState.AngularVelocities[i]), _simulationState.AngularVelocities[i].Length() * fdt);
+                    _simulationState.Orientations[i] = Quaternion.Normalize(_simulationState.Orientations[i] * delta_rotation);
                 }
-                
-                _pieceStates[i] = state;
             }
         }
 
@@ -236,68 +181,19 @@ namespace CORIS.Core
         {
             const double seaLevelDensity = 1.225; // kg/m³
             const double scaleHeight = 8400; // m
-            
+
             return seaLevelDensity * Math.Exp(-altitude / scaleHeight);
         }
 
-        /// <summary>
-        /// Get initial fuel amount from piece properties
-        /// </summary>
-        private double GetInitialFuel(Piece piece)
-        {
-            if (piece.Type == "tank" && piece.Properties?.TryGetValue("fuel", out var fuel) == true)
-            {
-                return fuel;
-            }
-            return 0.0;
-        }
 
-        /// <summary>
-        /// Get drag coefficient based on piece type
-        /// </summary>
-        private float GetDragCoefficient(Piece piece)
-        {
-            return piece.Type switch
-            {
-                "engine" => 0.8f,
-                "tank" => 0.6f,
-                "cockpit" => 0.4f,
-                "wing" => 0.1f,
-                _ => 0.7f
-            };
-        }
 
-        /// <summary>
-        /// Get cross-sectional area based on piece type
-        /// </summary>
-        private float GetCrossSectionalArea(Piece piece)
-        {
-            return piece.Type switch
-            {
-                "engine" => 0.8f,
-                "tank" => 1.2f,
-                "cockpit" => 1.0f,
-                "wing" => 2.0f,
-                _ => 1.0f
-            };
-        }
 
-        /// <summary>
-        /// Get physics state for a piece by ID
-        /// </summary>
-        public PiecePhysicsState? GetPieceState(int pieceId)
-        {
-            if (_pieceIdToIndex.TryGetValue(pieceId, out int index) && index < _pieceStates.Count)
-            {
-                return _pieceStates[index];
-            }
-            return null;
-        }
 
-        /// <summary>
-        /// Get all physics states for debugging and visualization
-        /// </summary>
-        public IReadOnlyList<PiecePhysicsState> GetAllStates() => _pieceStates.AsReadOnly();
+
+
+
+
+
 
         /// <summary>
         /// Performance metrics
@@ -306,7 +202,7 @@ namespace CORIS.Core
         {
             return new PhysicsMetrics
             {
-                ActiveBodies = _pieceStates.Count,
+                ActiveBodies = _simulationState.EntityCount,
                 CurrentStep = _currentStep,
                 LastUpdateTime = _lastUpdateTime,
                 SubStepsPerFrame = SubStepsPerFrame
@@ -319,25 +215,7 @@ namespace CORIS.Core
         }
     }
 
-    /// <summary>
-    /// Data-oriented physics state for individual pieces
-    /// Optimized for cache-friendly access patterns using Structure of Arrays
-    /// </summary>
-    public struct PiecePhysicsState
-    {
-        public string PieceID;
-        public double Mass;
-        public double Fuel;
-        public Vector3 Position;
-        public Quaternion Orientation;
-        public Vector3 LinearVelocity;
-        public Vector3 AngularVelocity;
-        public Vector3 Force;
-        public Vector3 Torque;
-        public float InverseMass;
-        public float DragCoefficient;
-        public float CrossSectionalArea;
-    }
+
 
     /// <summary>
     /// Engine data for thrust calculations following Tsiolkovsky equation

@@ -22,8 +22,7 @@ namespace CORIS.Sim
         private static KhrSwapchain _khrSwapchain = default!;
         private static SwapchainKHR _swapchain;
         private static PipelineCache _pipelineCache;
-        private static bool _hasTimelineSemaphore = false;
-        
+
         // MoltenVK compatibility flags
         private static readonly bool _isMacOS = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
 
@@ -39,7 +38,7 @@ namespace CORIS.Sim
 
             Console.WriteLine("Starting Vulkan Demo");
             Console.WriteLine("===================");
-            
+
             try
             {
                 // On macOS, we need to use Metal directly instead of trying to create a Vulkan window
@@ -60,27 +59,27 @@ namespace CORIS.Sim
                 Console.WriteLine(ex.StackTrace);
             }
         }
-        
-        private static void RunHeadless()
+
+        public static void RunHeadless()
         {
             // This is a simplified version that doesn't create a window
             // but still initializes Vulkan and demonstrates MoltenVK functionality
-            
+
             Console.WriteLine("Running in headless mode (no window) for macOS");
-            
+
             // Initialize Vulkan
             InitializeVulkanHeadless();
-            
+
             Console.WriteLine("Vulkan initialized successfully in headless mode");
-            
+
             // Perform some basic Vulkan operations
             // For now, we'll just enumerate supported extensions
             EnumerateExtensions();
-            
+
             // Clean up
             CleanupVulkan();
         }
-        
+
         private static void RunWithWindow()
         {
             // Create window with Vulkan support
@@ -89,24 +88,24 @@ namespace CORIS.Sim
             options.Size = new Silk.NET.Maths.Vector2D<int>(800, 600);
             options.API = GraphicsAPI.DefaultVulkan;
             using var window = Window.Create(options);
-            
-            window.Load += () => 
+
+            window.Load += () =>
             {
                 InitializeVulkan(window);
                 Console.WriteLine("Vulkan window loaded.");
             };
-            
-            window.Render += delta => 
+
+            window.Render += delta =>
             {
                 // Rendering code will be added in future updates
             };
-            
-            window.Closing += () => 
+
+            window.Closing += () =>
             {
                 CleanupVulkan();
                 Console.WriteLine("Vulkan window closing.");
             };
-            
+
             window.Run();
         }
 
@@ -124,7 +123,7 @@ namespace CORIS.Sim
             // Create logical device
             CreateLogicalDevice();
         }
-        
+
         private static unsafe void InitializeVulkan(IWindow window)
         {
             // Get Vulkan API instance
@@ -141,11 +140,11 @@ namespace CORIS.Sim
 
             // Create logical device
             CreateLogicalDevice();
-            
+
             // Create swapchain
             CreateSwapchain(window.Size.X, window.Size.Y);
         }
-        
+
         private static unsafe void CreateInstanceHeadless()
         {
             var available = GetAvailableInstanceExtensions();
@@ -204,7 +203,7 @@ namespace CORIS.Sim
             // GLFW/Silk.NET will handle platform differences (Win32, XCB, Metal)
             // On macOS, this will include VK_KHR_surface and VK_EXT_metal_surface
             var glfwExtensions = window.VkSurface!.GetRequiredExtensions(out var glfwExtensionCount);
-            
+
             // Convert the extensions to a string array
             var extensions = new string[(int)glfwExtensionCount];
             for (int i = 0; i < (int)glfwExtensionCount; i++)
@@ -222,26 +221,26 @@ namespace CORIS.Sim
             if (_isMacOS)
             {
                 Console.WriteLine("Running on macOS: Using MoltenVK for Vulkan support");
-                
+
                 // MoltenVK requires these extensions for proper operation on macOS
                 var macOSExtensions = new List<string>(extensions);
-                
+
                 // VK_KHR_get_physical_device_properties2 might be needed for some features
                 macOSExtensions.Add("VK_KHR_get_physical_device_properties2");
-                
+
                 Console.WriteLine("Adding macOS-specific extensions for MoltenVK:");
                 foreach (var ext in macOSExtensions)
                 {
                     Console.WriteLine($"  - {ext}");
                 }
-                
+
                 extensions = macOSExtensions.ToArray();
             }
-            
+
             // Add timeline semaphore extension if supported
             if (available.Contains("VK_KHR_timeline_semaphore") && !extensions.Contains("VK_KHR_timeline_semaphore"))
                 extensions = extensions.Append("VK_KHR_timeline_semaphore").ToArray();
-            
+
             // Create instance
             var extPtr = SilkMarshal.StringArrayToPtr(extensions);
             try
@@ -256,19 +255,19 @@ namespace CORIS.Sim
                     PpEnabledExtensionNames = (byte**)extPtr,
                     Flags = icFlags
                 };
-                
+
                 _vk.CreateInstance(in ci, null, out _instance).ThrowOnError();
                 Console.WriteLine("Successfully created Vulkan instance");
             }
-            finally 
+            finally
             {
                 SilkMarshal.Free(extPtr);
             }
-            
+
             // Cleanup marshalled strings
             SilkMarshal.Free((nint)appInfo.PApplicationName);
             SilkMarshal.Free((nint)appInfo.PEngineName);
-            
+
             // Load Vulkan instance-level functions
             _vk.CurrentInstance = _instance;
         }
@@ -280,7 +279,7 @@ namespace CORIS.Sim
             try
             {
                 _surface = window.VkSurface!.Create<AllocationCallbacks>(_instance.ToHandle(), null).ToSurface();
-                
+
                 if (_isMacOS)
                 {
                     Console.WriteLine("Created Vulkan surface using CAMetalLayer for MoltenVK compatibility");
@@ -290,7 +289,7 @@ namespace CORIS.Sim
             {
                 throw new Exception($"Failed to create Vulkan surface: {ex.Message}");
             }
-            
+
             // Get the KHR surface extension 
             if (!_vk.TryGetInstanceExtension(_instance, out _khrSurface))
             {
@@ -314,12 +313,12 @@ namespace CORIS.Sim
             // Select the first suitable device
             // In a real application, you'd want to score and select the best device
             _physicalDevice = devices[0];
-            
+
             // Get device properties for logging
             _vk.GetPhysicalDeviceProperties(_physicalDevice, out var deviceProperties);
             var deviceName = Marshal.PtrToStringAnsi((IntPtr)deviceProperties.DeviceName);
             Console.WriteLine($"Selected GPU: {deviceName}");
-            
+
             if (_isMacOS)
             {
                 // On macOS, check for portability subset extension which indicates MoltenVK features
@@ -360,7 +359,7 @@ namespace CORIS.Sim
                         // Check present support
                         Bool32 presentSupport = false;
                         _khrSurface.GetPhysicalDeviceSurfaceSupport(_physicalDevice, i, _surface, &presentSupport);
-                        
+
                         if (presentSupport)
                         {
                             graphicsFamily = i;
@@ -387,16 +386,16 @@ namespace CORIS.Sim
 
             // Enable device features as needed
             var deviceFeatures = new PhysicalDeviceFeatures();
-            
+
             // Create device extensions list
             var deviceExtensionList = new List<string>();
-            
+
             // Add swapchain extension if we have a surface
             if (_surface.Handle != 0)
             {
                 deviceExtensionList.Add("VK_KHR_swapchain");
             }
-            
+
             // Check for macOS compatibility
             bool hasPortabilitySubset = _isMacOS && HasExtension(_physicalDevice, "VK_KHR_portability_subset");
             if (hasPortabilitySubset)
@@ -410,7 +409,6 @@ namespace CORIS.Sim
             if (timelineAvailable)
             {
                 deviceExtensionList.Add("VK_KHR_timeline_semaphore");
-                _hasTimelineSemaphore = true;
             }
 
             // Convert to native pointers
@@ -436,10 +434,10 @@ namespace CORIS.Sim
                 // Free marshalled memory
                 SilkMarshal.Free(deviceExtensionPtr);
             }
-            
+
             // Load device-level functions
             _vk.CurrentDevice = _device;
-            
+
             // Get the swapchain extension if we have a surface
             if (_surface.Handle != 0)
             {
@@ -466,7 +464,7 @@ namespace CORIS.Sim
                 if (currentExtName == extensionName)
                     return true;
             }
-            
+
             return false;
         }
 
@@ -477,7 +475,7 @@ namespace CORIS.Sim
             {
                 return;
             }
-            
+
             // Query surface capabilities
             _khrSurface.GetPhysicalDeviceSurfaceCapabilities(_physicalDevice, _surface, out var surfaceCapabilities);
 
@@ -491,7 +489,7 @@ namespace CORIS.Sim
             var surfaceFormat = surfaceFormats[0]; // Default to first format
             for (int i = 0; i < formatCount; i++)
             {
-                if (surfaceFormats[i].Format == Format.B8G8R8A8Unorm && 
+                if (surfaceFormats[i].Format == Format.B8G8R8A8Unorm &&
                     surfaceFormats[i].ColorSpace == ColorSpaceKHR.SpaceSrgbNonlinearKhr)
                 {
                     surfaceFormat = surfaceFormats[i];
@@ -507,7 +505,7 @@ namespace CORIS.Sim
 
             // Pick a present mode (prefer mailbox, but FIFO is always available and works best on macOS)
             var presentMode = PresentModeKHR.FifoKhr; // Default to FIFO (vsync)
-            
+
             // On macOS, stick with FIFO as recommended in the MoltenVK research
             if (!_isMacOS)
             {
@@ -524,7 +522,7 @@ namespace CORIS.Sim
             {
                 Console.WriteLine("Using FIFO present mode for optimal MoltenVK compatibility");
             }
-            
+
             Console.WriteLine($"Using present mode: {presentMode}");
 
             // Choose swapchain extent
@@ -563,25 +561,25 @@ namespace CORIS.Sim
             _khrSwapchain.CreateSwapchain(_device, in createInfo, null, out _swapchain).ThrowOnError();
             Console.WriteLine($"Created swapchain with extent {extent.Width}x{extent.Height}");
         }
-        
+
         private static unsafe void EnumerateExtensions()
         {
             // Get instance extensions
             uint extensionCount = 0;
             _vk.EnumerateInstanceExtensionProperties((byte*)null, &extensionCount, null);
-            
+
             if (extensionCount > 0)
             {
                 var extensions = stackalloc ExtensionProperties[(int)extensionCount];
                 _vk.EnumerateInstanceExtensionProperties((byte*)null, &extensionCount, extensions);
-                
+
                 Console.WriteLine($"Available Vulkan instance extensions ({extensionCount}):");
                 for (int i = 0; i < Math.Min(10, extensionCount); i++) // Show only the first 10
                 {
                     var extName = Marshal.PtrToStringAnsi((IntPtr)extensions[i].ExtensionName);
                     Console.WriteLine($"  - {extName} (version {extensions[i].SpecVersion})");
                 }
-                
+
                 if (extensionCount > 10)
                 {
                     Console.WriteLine($"  ... and {extensionCount - 10} more");
@@ -591,23 +589,23 @@ namespace CORIS.Sim
             {
                 Console.WriteLine("No Vulkan instance extensions available");
             }
-            
+
             // Get device extensions
             uint deviceExtCount = 0;
             _vk.EnumerateDeviceExtensionProperties(_physicalDevice, (byte*)null, &deviceExtCount, null);
-            
+
             if (deviceExtCount > 0)
             {
                 var deviceExts = stackalloc ExtensionProperties[(int)deviceExtCount];
                 _vk.EnumerateDeviceExtensionProperties(_physicalDevice, (byte*)null, &deviceExtCount, deviceExts);
-                
+
                 Console.WriteLine($"Available device extensions ({deviceExtCount}):");
                 for (int i = 0; i < Math.Min(10, deviceExtCount); i++) // Show only the first 10
                 {
                     var extName = Marshal.PtrToStringAnsi((IntPtr)deviceExts[i].ExtensionName);
                     Console.WriteLine($"  - {extName} (version {deviceExts[i].SpecVersion})");
                 }
-                
+
                 if (deviceExtCount > 10)
                 {
                     Console.WriteLine($"  ... and {deviceExtCount - 10} more");
@@ -624,15 +622,24 @@ namespace CORIS.Sim
             string cacheDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "CORIS");
             Directory.CreateDirectory(cacheDir);
             string cacheFile = Path.Combine(cacheDir, "vkcache.bin");
-            byte[] initial = File.Exists(cacheFile) ? File.ReadAllBytes(cacheFile) : null;
-            fixed(byte* pInit = initial)
+            byte[]? initial = File.Exists(cacheFile) ? File.ReadAllBytes(cacheFile) : null;
+
+            var pci = new PipelineCacheCreateInfo
             {
-                var pci = new PipelineCacheCreateInfo
+                SType = StructureType.PipelineCacheCreateInfo,
+                InitialDataSize = (nuint)(initial?.Length ?? 0)
+            };
+
+            if (initial != null)
+            {
+                fixed (byte* pInit = initial)
                 {
-                    SType = StructureType.PipelineCacheCreateInfo,
-                    InitialDataSize = (nuint)(initial?.Length ?? 0),
-                    PInitialData = initial != null ? pInit : null
-                };
+                    pci.PInitialData = pInit;
+                    _vk.CreatePipelineCache(_device, &pci, null, out _pipelineCache).ThrowOnError();
+                }
+            }
+            else
+            {
                 _vk.CreatePipelineCache(_device, &pci, null, out _pipelineCache).ThrowOnError();
             }
         }
@@ -644,25 +651,25 @@ namespace CORIS.Sim
             {
                 _vk.DeviceWaitIdle(_device);
             }
-            
+
             // Destroy swapchain
             if (_swapchain.Handle != 0 && _device.Handle != 0)
             {
                 _khrSwapchain.DestroySwapchain(_device, _swapchain, null);
             }
-            
+
             // Destroy device
             if (_device.Handle != 0)
             {
                 _vk.DestroyDevice(_device, null);
             }
-            
+
             // Destroy surface
             if (_surface.Handle != 0 && _instance.Handle != 0)
             {
                 _khrSurface.DestroySurface(_instance, _surface, null);
             }
-            
+
             // Destroy instance
             if (_instance.Handle != 0)
             {
@@ -677,7 +684,7 @@ namespace CORIS.Sim
                 if (size > 0)
                 {
                     byte[] data = new byte[(int)size];
-                    fixed(byte* pData = data)
+                    fixed (byte* pData = data)
                     {
                         _vk.GetPipelineCacheData(_device, _pipelineCache, &size, pData);
                     }
@@ -717,4 +724,4 @@ namespace CORIS.Sim
             return result;
         }
     }
-} 
+}

@@ -66,7 +66,7 @@ namespace CORIS.Core
         public static Vector3 Slerp(Vector3 a, Vector3 b, float t)
         {
             float dot = Vector3.Dot(a, b);
-            
+
             // If the vectors are nearly identical, use linear interpolation
             if (Math.Abs(dot) > 0.9995f)
             {
@@ -75,10 +75,10 @@ namespace CORIS.Core
 
             float theta = (float)Math.Acos(Math.Abs(dot));
             float sinTheta = (float)Math.Sin(theta);
-            
+
             float wa = (float)Math.Sin((1 - t) * theta) / sinTheta;
             float wb = (float)Math.Sin(t * theta) / sinTheta;
-            
+
             return a * wa + b * wb;
         }
 
@@ -89,7 +89,7 @@ namespace CORIS.Core
         {
             float bLengthSquared = b.LengthSquared();
             if (bLengthSquared < 1e-6f) return Zero;
-            
+
             return b * (Vector3.Dot(a, b) / bLengthSquared);
         }
 
@@ -116,7 +116,7 @@ namespace CORIS.Core
         {
             float denominator = (float)Math.Sqrt(a.LengthSquared() * b.LengthSquared());
             if (denominator < 1e-6f) return 0;
-            
+
             float dot = Vector3.Dot(a, b) / denominator;
             return (float)Math.Acos(Math.Clamp(dot, -1.0f, 1.0f));
         }
@@ -161,41 +161,41 @@ namespace CORIS.Core
         {
             Vector3 delta = target - current;
             float distance = delta.Length();
-            
+
             if (distance <= maxDistanceDelta || distance < 1e-6f)
                 return target;
-            
+
             return current + delta / distance * maxDistanceDelta;
         }
 
         /// <summary>
         /// Smooth damp towards target (useful for camera following)
         /// </summary>
-        public static Vector3 SmoothDamp(Vector3 current, Vector3 target, ref Vector3 currentVelocity, 
+        public static Vector3 SmoothDamp(Vector3 current, Vector3 target, ref Vector3 currentVelocity,
             float smoothTime, float maxSpeed = float.PositiveInfinity, float deltaTime = 0.02f)
         {
             smoothTime = Math.Max(0.0001f, smoothTime);
             float omega = 2f / smoothTime;
             float x = omega * deltaTime;
             float exp = 1f / (1f + x + 0.48f * x * x + 0.235f * x * x * x);
-            
+
             Vector3 change = current - target;
             Vector3 originalTo = target;
-            
+
             float maxChange = maxSpeed * smoothTime;
             change = ClampMagnitude(change, maxChange);
             target = current - change;
-            
+
             Vector3 temp = (currentVelocity + change * omega) * deltaTime;
             currentVelocity = (currentVelocity - temp * omega) * exp;
             Vector3 output = target + (change + temp) * exp;
-            
+
             if (Vector3.Dot(originalTo - current, output - originalTo) > 0)
             {
                 output = originalTo;
                 currentVelocity = (output - originalTo) / deltaTime;
             }
-            
+
             return output;
         }
 
@@ -220,10 +220,10 @@ namespace CORIS.Core
         {
             float radius = cartesian.Length();
             if (radius < 1e-6f) return Zero;
-            
+
             float theta = (float)Math.Atan2(cartesian.Z, cartesian.X);
             float phi = (float)Math.Acos(cartesian.Y / radius);
-            
+
             return new Vector3(radius, theta, phi);
         }
     }

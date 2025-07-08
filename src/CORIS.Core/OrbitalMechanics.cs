@@ -300,7 +300,7 @@ namespace CORIS.Core
         /// Calculate bi-elliptic transfer for very large orbit changes
         /// More efficient than Hohmann when r2/r1 > 11.94
         /// </summary>
-        public static (ManeuverNode firstBurn, ManeuverNode secondBurn, ManeuverNode thirdBurn) 
+        public static (ManeuverNode firstBurn, ManeuverNode secondBurn, ManeuverNode thirdBurn)
             CalculateBiEllipticTransfer(double r1, double r2, double rIntermediate, double mu, double currentTime)
         {
             double v1 = Math.Sqrt(mu / r1);
@@ -404,7 +404,7 @@ namespace CORIS.Core
             public static string DetermineOptimalTransferType(double r1, double r2)
             {
                 double ratio = Math.Max(r1, r2) / Math.Min(r1, r2);
-                
+
                 if (ratio < 11.94)
                     return "Hohmann";
                 else
@@ -428,8 +428,8 @@ namespace CORIS.Core
             /// Find optimal launch window for interplanetary transfer
             /// Simplified Porkchop plot calculation
             /// </summary>
-            public static (double launchTime, double arrivalTime, double totalDeltaV) 
-                FindOptimalLaunchWindow(double departureOrbitRadius, double arrivalOrbitRadius, 
+            public static (double launchTime, double arrivalTime, double totalDeltaV)
+                FindOptimalLaunchWindow(double departureOrbitRadius, double arrivalOrbitRadius,
                                       double searchStartTime, double searchDuration, double timeStep)
             {
                 double bestDeltaV = double.MaxValue;
@@ -441,13 +441,13 @@ namespace CORIS.Core
                     for (double flightTime = 100 * 24 * 3600; flightTime < 500 * 24 * 3600; flightTime += timeStep)
                     {
                         double arrivalTime = launchTime + flightTime;
-                        
+
                         // Calculate transfer delta-v (simplified)
                         var (firstBurn, secondBurn) = CalculateHohmannTransfer(
                             departureOrbitRadius, arrivalOrbitRadius, CelestialBodies.SolarMu, launchTime);
-                        
+
                         double totalDeltaV = firstBurn.DeltaVMagnitude + secondBurn.DeltaVMagnitude;
-                        
+
                         if (totalDeltaV < bestDeltaV)
                         {
                             bestDeltaV = totalDeltaV;
@@ -484,18 +484,18 @@ namespace CORIS.Core
         {
             _celestialBodies = new List<CelestialBody>
             {
-                new CelestialBody 
-                { 
-                    Name = "Earth", 
+                new CelestialBody
+                {
+                    Name = "Earth",
                     Mu = OrbitalMechanics.CelestialBodies.EarthMu,
                     Radius = OrbitalMechanics.CelestialBodies.EarthRadius,
                     SphereOfInfluence = 924000000, // 924,000 km
                     Position = VectorMath.Zero,
                     Velocity = VectorMath.Zero
                 },
-                new CelestialBody 
-                { 
-                    Name = "Moon", 
+                new CelestialBody
+                {
+                    Name = "Moon",
                     Mu = OrbitalMechanics.CelestialBodies.MoonMu,
                     Radius = 1.737e6, // 1,737 km
                     SphereOfInfluence = 66100000, // 66,100 km
@@ -545,7 +545,7 @@ namespace CORIS.Core
                     return body;
                 }
             }
-            
+
             // Default to primary body (Earth)
             return _celestialBodies[0];
         }
