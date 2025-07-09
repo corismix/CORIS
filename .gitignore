@@ -1,0 +1,11 @@
+# Ignore .DS_Store
+.DS_Store
+
+# Ignore .env
+.env
+
+# Ignore .env.local
+.env.local
+
+# Ignore .env.development.local
+.env.development.local
